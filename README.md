@@ -3,7 +3,7 @@ Go to terminal and put this command > git pull origin main
 
 After you make changes, run these on terminal:
 
-git add .
+git add . \n
 git commit -m "Updated feature"
 git push origin main
 
