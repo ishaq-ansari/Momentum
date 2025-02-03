@@ -1,0 +1,293 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f0f0;
+}
+
+.container {
+  position: relative;
+  width: 800px;
+  height: 500px;
+  perspective: 1000px;
+}
+
+.form-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  background: white;
+  overflow: hidden;
+}
+
+.rotating-bg {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background: conic-gradient(from 25deg at 55% 45%, 
+      black 0deg 180deg, 
+      transparent 180deg 360deg);
+  transition: transform 1s ease;
+  transform-origin: 50% 50%;
+  transform: rotate(-45deg);
+}
+
+.form-container.active .rotating-bg {
+  transform: rotate(135deg);
+}
+
+.form-content {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px;
+  transition: all 0.5s ease;
+}
+
+.login-content {
+  left: 0;
+  opacity: 1;
+}
+
+.signup-content {
+  right: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.form-container.active .login-content {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.form-container.active .signup-content {
+  opacity: 1;
+  pointer-events: auto;
+  transition-delay: 0.5s;
+}
+
+.welcome-text {
+  position: absolute;
+  width: 45%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px;
+  color: white;
+  transition: all 0.5s ease;
+}
+
+.login-welcome {
+  right: 0;
+  opacity: 1;
+}
+
+.signup-welcome {
+  left: 0;
+  opacity: 0;
+}
+
+.form-container.active .login-welcome {
+  opacity: 0;
+}
+
+.form-container.active .signup-welcome {
+  opacity: 1;
+  transition-delay: 0.5s;
+}
+
+h2 {
+  font-size: 2em;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-bottom: 2px solid #ddd;
+  outline: none;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+input:focus {
+  border-color: #000;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: #000;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #333;
+}
+
+.switch-form {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.forgot-password {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+
+.switch-form a {
+  color: #666;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.switch-form a:hover {
+  text-decoration: underline;
+}
+
+/* Todo App Styles */
+.todo-container {
+  display: none;
+  width: 80%;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.todo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.todo-list {
+  list-style: none;
+  margin-top: 20px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  animation: fadeIn 0.3s ease;
+}
+
+.todo-item input[type="checkbox"] {
+  flex-shrink: 0; /* Prevent the checkbox from shrinking */
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.todo-item:last-child {
+  border-bottom: none;
+}
+
+.todo-checkbox {
+  margin-right: 15px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.todo-text {
+  flex-grow: 1;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.completed {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.todo-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.todo-actions button {
+  width: auto;
+  padding: 8px 16px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.delete-btn {
+  background: #ff4444;
+}
+
+.delete-btn:hover {
+  background: #cc0000;
+}
+
+#todo-input {
+  flex-grow: 1;
+  margin-right: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+}
+
+#add-todo-btn {
+  width: 120px;
+  padding: 10px 20px;
+}
+
+#logout-btn {
+  width: auto;
+  margin: 20px auto 0;
+  padding: 8px 16px;
+  background: #666;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: block;
+}
+
+#logout-btn:hover {
+  background: #4f4242;
+}
