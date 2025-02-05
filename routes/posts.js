@@ -1,66 +1,68 @@
-// routes/todos.js
+//routes/posts.js
+
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
-const Todo = require('../models/Todo');
+const Post = require('../models/Post');
 
-// Get all todos
+// Get all posts
 router.get('/', auth, async (req, res) => {
     try {
-        const todos = await Todo.find({ userId: req.user.id }).sort({ createdAt: -1 });
-        res.json(todos);
+        const posts = await Post.find({}).sort({ createdAt: -1 });
+        res.json(posts);
     } catch (err) {
         res.status(500).json({ message: 'Server error' });
     }
 });
 
-// Create todo
+// Create a post
 router.post('/', auth, async (req, res) => {
     try {
-        const newTodo = new Todo({
+        const newPost = new Post({
+            userId: req.user.id,
             text: req.body.text,
-            userId: req.user.id
+            anonymous: req.body.anonymous
         });
 
-        const todo = await newTodo.save();
-        res.status(201).json(todo);
+        const post = await newPost.save();
+        res.status(201).json(post);
     } catch (err) {
         res.status(500).json({ message: 'Server error' });
     }
 });
 
-// Update todo
+// Update a post
 router.put('/:id', auth, async (req, res) => {
     try {
-        const todo = await Todo.findOneAndUpdate(
+        const post = await Post.findOneAndUpdate(
             { _id: req.params.id, userId: req.user.id },
             { $set: req.body },
             { new: true }
         );
 
-        if (!todo) {
-            return res.status(404).json({ message: 'Todo not found' });
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
         }
 
-        res.json(todo);
+        res.json(post);
     } catch (err) {
         res.status(500).json({ message: 'Server error' });
     }
 });
 
-// Delete todo
+// Delete a post
 router.delete('/:id', auth, async (req, res) => {
     try {
-        const todo = await Todo.findOneAndDelete({ 
+        const post = await Post.findOneAndDelete({
             _id: req.params.id,
             userId: req.user.id
         });
 
-        if (!todo) {
-            return res.status(404).json({ message: 'Todo not found' });
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
         }
 
-        res.json({ message: 'Todo removed' });
+        res.json({ message: 'Post removed' });
     } catch (err) {
         res.status(500).json({ message: 'Server error' });
     }

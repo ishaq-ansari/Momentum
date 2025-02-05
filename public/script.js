@@ -1,3 +1,5 @@
+//public/script.js
+
 // Global Variables
 const API_URL = window.location.origin + '/api';
 let token = localStorage.getItem('token');
@@ -15,10 +17,19 @@ async function handleLogin() {
         });
 
         const data = await response.json();
+        console.log('Login Response:', response.status, data); // Add this line for debugging
+
         if (data.token) {
             token = data.token;
             localStorage.setItem('token', token);
-            showTodoApp();
+            // Add null checks before accessing elements
+            const authContainer = document.getElementById('auth-container');
+            const appContainer = document.getElementById('app-container');
+            
+            if (authContainer) authContainer.style.display = 'none';
+            if (appContainer) appContainer.style.display = 'block';
+            
+            showHomeFeed() // Show the home feed after login
         } else {
             alert(data.message || 'Login failed');
         }
@@ -77,89 +88,264 @@ async function handleRegister(event) {
 function handleLogout() {
     localStorage.removeItem('token');
     location.reload();
+    window.location.href = "index.html";
 }
 
-// Todo Functions
-async function fetchTodos() {
-    try {
-        const response = await fetch(`${API_URL}/todos`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const todos = await response.json();
-        renderTodos(todos);
-    } catch (error) {
-        alert('Error fetching todos');
-    }
+// App Functions
+async function showHomeFeed() {
+    document.getElementById('home-feed').style.display = 'block';
+    document.getElementById('chat-rooms').style.display = 'none';
+    document.getElementById('peer-support').style.display = 'none';
+    document.getElementById('professionals').style.display = 'none';
+    await fetchPosts();
 }
 
-async function handleAddTodo() {
-    const input = document.getElementById('todo-input');
-    const text = input.value.trim();
+async function showChatRooms() {
+    document.getElementById('home-feed').style.display = 'none';
+    document.getElementById('chat-rooms').style.display = 'block';
+    document.getElementById('peer-support').style.display = 'none';
+    document.getElementById('professionals').style.display = 'none';
+    await fetchChatRooms();
+}
 
-    if (!text) return;
+async function showPeerSupport() {
+    document.getElementById('home-feed').style.display = 'none';
+    document.getElementById('chat-rooms').style.display = 'none';
+    document.getElementById('peer-support').style.display = 'block';
+    document.getElementById('professionals').style.display = 'none';
+    // Implement peer support functionality
+}
+
+async function showProfessionals() {
+    document.getElementById('home-feed').style.display = 'none';
+    document.getElementById('chat-rooms').style.display = 'none';
+    document.getElementById('peer-support').style.display = 'none';
+    document.getElementById('professionals').style.display = 'block';
+    await fetchProfessionals();
+}
+
+async function createPost() {
+    const postText = document.getElementById('post-text').value.trim();
+    const postAnonymous = document.getElementById('post-anonymous').checked;
+
+    if (!postText) return;
 
     try {
-        await fetch(`${API_URL}/todos`, {
+        await fetch(`${API_URL}/posts`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ text })
+            body: JSON.stringify({ text: postText, anonymous: postAnonymous })
         });
-        input.value = '';
-        fetchTodos();
+        document.getElementById('post-text').value = '';
+        await fetchPosts();
     } catch (error) {
-        alert('Error adding todo');
+        alert('Error creating post');
     }
 }
 
-async function handleUpdateTodo(id, updates) {
+async function fetchPosts() {
     try {
-        await fetch(`${API_URL}/todos/${id}`, {
+        const response = await fetch(`${API_URL}/posts`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const posts = await response.json();
+        renderPosts(posts);
+    } catch (error) {
+        alert('Error fetching posts');
+    }
+}
+
+function renderPosts(posts) {
+    const postsContainer = document.getElementById('posts-container');
+    postsContainer.innerHTML = '';
+
+    posts.forEach(post => {
+        const postElement = document.createElement('div');
+        postElement.className = 'post';
+        postElement.innerHTML = `
+            <div class="post-header">
+                ${post.anonymous ? 'Anonymous' : 'Posted by'} ${post.anonymous ? '' : 'User'}
+            </div>
+            <div class="post-content">${post.text}</div>
+        `;
+        postsContainer.appendChild(postElement);
+    });
+}
+
+async function fetchChatRooms() {
+    try {
+        const response = await fetch(`${API_URL}/chatrooms`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const chatRooms = await response.json();
+        renderChatRooms(chatRooms);
+    } catch (error) {
+        alert('Error fetching chat rooms');
+    }
+}
+
+function renderChatRooms(chatRooms) {
+    const chatRoomList = document.getElementById('chat-room-list');
+    chatRoomList.innerHTML = '';
+
+    chatRooms.forEach(room => {
+        const roomElement = document.createElement('div');
+        roomElement.className = 'chat-room';
+        roomElement.innerHTML = `
+            <h3>${room.name}</h3>
+            <p>${room.description}</p>
+            <button onclick="joinChatRoom('${room._id}')">Join</button>
+        `;
+        chatRoomList.appendChild(roomElement);
+    });
+}
+
+async function joinChatRoom(roomId) {
+    try {
+        await fetch(`${API_URL}/chatrooms/${roomId}/join`, {
             method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        document.getElementById('chat-room-list').style.display = 'none';
+        document.getElementById('chat-room-container').style.display = 'block';
+        await fetchChatMessages(roomId);
+    } catch (error) {
+        alert('Error joining chat room');
+    }
+}
+
+async function fetchChatMessages(roomId) {
+    try {
+        const response = await fetch(`${API_URL}/chatrooms/${roomId}/messages`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const messages = await response.json();
+        renderChatMessages(messages);
+    } catch (error) {
+        alert('Error fetching chat messages');
+    }
+}
+
+function renderChatMessages(messages) {
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.innerHTML = '';
+
+    messages.forEach(message => {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'chat-message';
+        messageElement.innerHTML = `
+            <div class="message-header">
+                ${message.userId.username}
+            </div>
+            <div class="message-content">${message.text}</div>
+        `;
+        chatMessages.appendChild(messageElement);
+    });
+}
+
+async function sendChatMessage() {
+    const chatInputText = document.getElementById('chat-input-text').value.trim();
+
+    if (!chatInputText) return;
+
+    try {
+        const response = await fetch(`${API_URL}/chatrooms/${currentChatRoomId}/messages`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(updates)
+            body: JSON.stringify({ text: chatInputText })
         });
-        fetchTodos();
+        const newMessage = await response.json();
+        renderChatMessages([newMessage]);
+        document.getElementById('chat-input-text').value = '';
     } catch (error) {
-        alert('Error updating todo');
+        alert('Error sending chat message');
     }
 }
 
-async function handleDeleteTodo(id) {
+async function fetchProfessionals() {
     try {
-        await fetch(`${API_URL}/todos/${id}`, {
-            method: 'DELETE',
+        const response = await fetch(`${API_URL}/professionals`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        fetchTodos();
+        const professionals = await response.json();
+        renderProfessionals(professionals);
     } catch (error) {
-        alert('Error deleting todo');
+        alert('Error fetching professionals');
     }
 }
 
-function renderTodos(todos) {
-    const todoList = document.getElementById('todo-list');
-    todoList.innerHTML = '';
-    
-    todos.forEach(todo => {
-        const li = document.createElement('li');
-        li.className = 'todo-item';
-        li.innerHTML = `
-            <input type="checkbox" class="todo-checkbox" 
-                    ${todo.completed ? 'checked' : ''} 
-                    onchange="handleUpdateTodo('${todo._id}', {completed: this.checked})">
-            <span class="todo-text ${todo.completed ? 'completed' : ''}">${todo.text}</span>
-            <div class="todo-actions">
-                <button class="delete-btn" onclick="handleDeleteTodo('${todo._id}')">Delete</button>
-            </div>
+function renderProfessionals(professionals) {
+    const professionalList = document.getElementById('professional-list');
+    professionalList.innerHTML = '';
+
+    professionals.forEach(professional => {
+        const professionalElement = document.createElement('div');
+        professionalElement.className = 'professional';
+        professionalElement.innerHTML = `
+            <h3>${professional.name}</h3>
+            <p>Specialty: ${professional.specialty}</p>
+            <p>${professional.description}</p>
+            <p>Rating: ${professional.rating}</p>
+            <button onclick="showAppointmentForm('${professional._id}')">Book Appointment</button>
         `;
-        todoList.appendChild(li);
+        professionalList.appendChild(professionalElement);
     });
+}
+
+async function showAppointmentForm(professionalId) {
+    document.getElementById('professionals').style.display = 'none';
+    document.getElementById('appointment-form').style.display = 'block';
+
+    // Fetch available appointment slots for the selected professional
+    try {
+        const response = await fetch(`${API_URL}/professionals/${professionalId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const professional = await response.json();
+        renderAppointmentForm(professional);
+    } catch (error) {
+        alert('Error fetching professional information');
+    }
+}
+
+function renderAppointmentForm(professional) {
+    const appointmentForm = document.getElementById('appointment-form');
+    appointmentForm.innerHTML = `
+        <h3>Book Appointment with ${professional.name}</h3>
+        <form onsubmit="bookAppointment('${professional._id}'); return false;">
+            <label for="appointment-datetime">Select a date and time:</label>
+            <input type="datetime-local" id="appointment-datetime" required>
+            <button type="submit">Book Appointment</button>
+        </form>
+    `;
+}
+
+async function bookAppointment(professionalId) {
+    const appointmentDatetime = document.getElementById('appointment-datetime').value;
+
+    try {
+        await fetch(`${API_URL}/appointments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ professionalId, datetime: appointmentDatetime })
+        });
+        alert('Appointment booked successfully!');
+        document.getElementById('appointment-form').style.display = 'none';
+        document.getElementById('professionals').style.display = 'block';
+    } catch (error) {
+        alert('Error booking appointment');
+    }
 }
 
 // UI Functions
@@ -167,20 +353,9 @@ function switchForm() {
     document.querySelector('.form-container').classList.toggle('active');
 }
 
-function showTodoApp() {
-    document.querySelector('.container').style.display = 'none';
-    document.getElementById('todo-container').style.display = 'block';
-    fetchTodos();
-}
-
-// Event Listeners
-document.getElementById('todo-input').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        handleAddTodo();
-    }
-});
-
 // Check if user is already logged in
 if (token) {
-    showTodoApp();
+    document.getElementById('auth-container').style.display = 'none';
+    document.getElementById('app-container').style.display = 'block';
+    showHomeFeed();
 }

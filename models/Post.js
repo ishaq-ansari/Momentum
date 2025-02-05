@@ -1,7 +1,7 @@
-// models/Todo.js
+// models/Post.js
 const mongoose = require('mongoose');
 
-const TodoSchema = new mongoose.Schema({
+const PostSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -11,7 +11,7 @@ const TodoSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    completed: {
+    anonymous: {
         type: Boolean,
         default: false
     },
@@ -21,4 +21,4 @@ const TodoSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Todo', TodoSchema);
+module.exports = mongoose.model('Post', PostSchema);

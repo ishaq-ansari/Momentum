@@ -1,0 +1,57 @@
+<!-- App Container -->
+    <div class="app-container" id="app-container" style="display: none;">
+        <!-- Navigation -->
+        <nav>
+            <ul>
+                <li><a href="#" onclick="showHomeFeed()">Home</a></li>
+                <li><a href="#" onclick="showChatRooms()">Chat Rooms</a></li>
+                <li><a href="#" onclick="showPeerSupport()">Peer Support</a></li>
+                <li><a href="#" onclick="showProfessionals()">Book Professionals</a></li>
+            </ul>
+            <button id="logout-btn" onclick="handleLogout()">Logout</button>
+        </nav>
+
+        <!-- Home Feed -->
+        <div class="home-feed" id="home-feed">
+            <h2>Home Feed</h2>
+            <div class="post-form">
+                <textarea id="post-text" placeholder="Share your thoughts..."></textarea>
+                <div class="post-form-actions">
+                    <label>
+                        <input type="checkbox" id="post-anonymous"> Post anonymously
+                    </label>
+                    <button onclick="createPost()">Post</button>
+                </div>
+            </div>
+            <div class="posts-container" id="posts-container"></div>
+        </div>
+
+        <!-- Chat Rooms -->
+        <div class="chat-rooms" id="chat-rooms" style="display: none;">
+            <h2>Chat Rooms</h2>
+            <div class="chat-room-list" id="chat-room-list"></div>
+            <div class="chat-room-container" id="chat-room-container" style="display: none;">
+                <div class="chat-messages" id="chat-messages"></div>
+                <div class="chat-input">
+                    <input type="text" id="chat-input-text" placeholder="Type your message">
+                    <button onclick="sendChatMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Peer Support -->
+        <div class="peer-support" id="peer-support" style="display: none;">
+            <h2>Peer Support</h2>
+            <!-- Peer support functionality goes here -->
+        </div>
+
+        <!-- Book Professionals -->
+        <div class="professionals" id="professionals" style="display: none;">
+            <h2>Book Professionals</h2>
+            <div class="professional-list" id="professional-list"></div>
+            <div class="appointment-form" id="appointment-form" style="display: none;">
+                <h3>Book an Appointment</h3>
+                <!-- Appointment booking functionality goes here -->
+            </div>
+        </div>
+    </div>

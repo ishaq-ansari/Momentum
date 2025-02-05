@@ -1,72 +1,13 @@
-<!-- //public/index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Momentum</title>
-    <link id="cssLink" rel="stylesheet" href="style.css">
+    <title>SocialCare - Home</title>
+    <link rel="stylesheet" href="home.css">
     <script src="script.js"></script>
 </head>
 <body>
-    <!-- Auth Container -->
-    <div class="container" id="auth-container">
-        <div class="form-container">
-            <div class="rotating-bg"></div>
-
-            <!-- Welcome Text -->
-            <div class="welcome-text login-welcome">
-                <h2>WELCOME TO MOMENTUM!</h2>
-                <p style="padding-left: 60px">Login to your account.</p>
-            </div>
-
-            <div class="welcome-text signup-welcome">
-                <h2>WELCOME!</h2>
-                <p>Create a new account.</p>
-            </div>
-
-            <!-- Login Form -->
-            <div class="form-content login-content">
-                <h2 style="color: rgb(37, 99, 235);">Login</h2>
-                <div class="form-group">
-                    <input type="text" id="login-username" placeholder="Username" required>
-                </div>
-                <div class="form-group">
-                    <input type="password" id="login-password" placeholder="Password" required>
-                </div>
-                <button style="background-color: rgb(37, 99, 235);" onclick="applyHomeCSS(),handleLogin()" >Login</button>
-                <div class="switch-form">
-                     <a>Forgot Password?</a>
-                </div>
-                <div class="switch-form">
-                    Don't have an account? <a onclick="switchForm()">Sign Up</a>
-                </div>
-            </div>
-
-            <!-- Signup Form -->
-            <div class="form-content signup-content">
-                <h2 style="color: rgb(37, 99, 235);">Sign Up</h2>
-                <div class="form-group">
-                    <input type="text" id="signup-username" placeholder="Username" required>
-                </div>
-                <div class="form-group">
-                    <input type="email" id="signup-email" placeholder="Email" required>
-                    <div id="email-error" class="error-message"></div> <!-- Error message for email -->
-                </div>
-                <div class="form-group">
-                    <input type="password" id="signup-password" placeholder="Password" required>
-                    <div id="password-error" class="error-message"></div> <!-- Error message for password -->
-                </div>
-                <button style="background-color: rgb(37, 99, 235);" onclick="handleRegister(event)">Sign Up</button>
-                <div class="switch-form">
-                    Already have an account? <a onclick="switchForm()">Login</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- App Container -->
     <div class="app-container" id="app-container" style="display: none;">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -111,7 +52,7 @@
                 </button>
             </nav>
 
-            <button id="logout-btn" onclick="applyLoginCSS(),handleLogout()">
+            <button id="logout-btn" onclick="handleLogout()">
                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
@@ -162,24 +103,5 @@
             </div>
         </main>
     </div>
-
-    <script>
-        // function showTodoApp() {
-        //     document.getElementById('auth-container').style.display = 'none';
-        //     document.getElementById('app-container').style.display = 'block';
-        //     showHomeFeed(); // This is already defined in your script
-        // }
-        function applyHomeCSS() {
-            document.getElementById("cssLink").setAttribute("href", "home.css"); // Switch to home style
-            document.getElementById("auth-container").style.display = "none";
-            document.getElementById("app-container").style.display = "block";
-        }
-
-        function applyLoginCSS() {
-            document.getElementById("cssLink").setAttribute("href", "style.css"); // Switch back to login style
-            document.getElementById("app-container").style.display = "none";
-            document.getElementById("auth-container").style.display = "block";
-        }
-        </script>
 </body>
 </html>
