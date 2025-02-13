@@ -27,7 +27,13 @@ Layout
   padding: 1rem;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
+
+.sidebar-content {
+  flex-grow: 1; /* Makes sure content grows while leaving space for logout */
+}
+
 
 .logo {
   padding: 1rem;
@@ -78,28 +84,23 @@ Layout
   height: 1.25rem;
 }
 
-.logout-btn {
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
+#logout-btn {
+  width: auto;
+  margin: 20px auto 0;
+  padding: 8px 16px;
+  background: #666;
+  color: white;
   border: none;
-  background: none;
-  color: #4b5563;
-  font-size: 1rem;
-  font-weight: 500;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s;
-  position: absolute;
-  bottom: 1rem;
-  width: calc(100% - 2rem);
+  font-size: 14px;
+  display: block;
 }
 
-.logout-btn:hover {
-  background-color: rgb(243, 244, 246);
+#logout-btn:hover {
+  background:#4f4242;
 }
+
 
 /* Main Content */
 .main-content {
