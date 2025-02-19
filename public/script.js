@@ -142,10 +142,8 @@ async function showChatRooms() {
 }
 
 async function showPeerSupport() {
-    document.getElementById('home-feed').style.display = 'none';
-    document.getElementById('chat-rooms').style.display = 'none';
-    document.getElementById('peer-support').style.display = 'block';
-    document.getElementById('professionals').style.display = 'none';
+    
+    window.location.href = "peer.html"; // Redirect to peer-support.html
     // Implement peer support functionality
 }
 
