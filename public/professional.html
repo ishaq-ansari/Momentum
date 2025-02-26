@@ -4,210 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book a Mental Health Professional</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #eeeef6;
-        }
-        h1,h2{
-            color: #005bb5;
-        }
-        /* Sidebar */
-        .sidebar {
-            width: 100%;
-            background: #eeeef6;
-            padding: 20px;
-            border: 1px solid #ddd;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-        }
-        .sidebar h3 {
-            margin-bottom: 10px;
-        }
-        .sidebar .filter-grid {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            gap: 20px;
-        }
-        .sidebar label {
-            font-size: 14px;
-        }
-        .sidebar select,
-        .sidebar input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        /* Main Content */
-        .main-content {
-            width: 100%;
-            max-width: 1000px;
-            margin: 20px auto;
-        }
-
-        /* Banner */
-        .banner {
-            width: 100%;
-            height: 100px;
-            background: url('banner.jpg') center/cover no-repeat;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            text-align: center;
-            flex-direction: column;
-            padding: 20px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        .search-bar-container {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-        }
-        .search-bar {
-            width: 70%;
-            max-width: 700px;
-            display: flex;
-            background: white;
-            padding: 10px;
-            border-radius: 25px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-        .search-bar input {
-            flex: 1;
-            border: none;
-            padding: 5px;
-            font-size: 16px;
-            border-radius: 25px 0 0 25px;
-            outline: none;
-        }
-        .search-bar button {
-            border: none;
-            background: #0073e6;
-            color: white;
-            padding: 5px 5px;
-            cursor: pointer;
-            border-radius: 0 25px 25px 0;
-            font-size: 16px;
-            transition: 0.3s;
-        }
-        .search-bar button:hover {
-            background: #005bb5;
-        }
-
-        /* Container */
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            padding: 20px;
-        }
-        .grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-        }
-        .professional {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 250px;
-            transition: 0.3s;
-        }
-        .professional:hover {
-            transform: scale(1.05);
-        }
-        .professional img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin-bottom: 10px;
-        }
-        .book-btn {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 8px 15px;
-            background: #0073e6;
-            color: white;
-            border-radius: 5px;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-        .book-btn:hover {
-            background: #005bb5;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 800px) {
-            .search-bar {
-                width: 80%;
-            }
-        }
-        @media (max-width: 600px) {
-            .search-bar {
-                width: 100%;
-            }
-        }
-    </style>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-100 flex flex-col items-center">
     <!-- Main Content -->
-    <div class="main-content">
-        <div class="banner">
-            <h1>Find a Mental Health Professional</h1>
-            <div class="search-bar-container">
-                <div class="search-bar">
-                    <input type="text" placeholder="Search by specialty or name...">
-                    <button>Search</button>
+    <div class="main-content w-full max-w-4xl my-8">
+        <div class="banner-sidebar-container">
+            <div class="banner-sidebar">
+                <div class="banner w-full h-48 bg-cover bg-center flex flex-col justify-center items-center text-white text-center" style="background-image: url('banner.jpg');">
+                    <header class="bg-blue-600 text-white p-8 w-full">
+                        <div class="container mx-auto">
+                            <h1 class="text-3xl font-bold">Find Professionals</h1>
+                            <p class="text-lg mt-2">Connect and Talk to Professionals</p>
+                        </div>
+                    </header>
+                    <div class="search-bar-container flex justify-center w-full mt-4">
+                        <div class="search-bar flex w-2/3 max-w-lg bg-white p-1 rounded-full shadow-md">
+                            <input type="text" placeholder="Search by specialty or name..." class="flex-1 border-none p-1 rounded-l-full outline-none">
+                            <button class="bg-blue-600 text-white p-1 rounded-r-full transition duration-300 hover:bg-blue-800">Search</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar w-full mt-4 p-2 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-2 text-center">Filter by</h3>
+                    <div class="filter-grid grid grid-cols-1 md:grid-cols-3 gap-2">
+                        <div>
+                            <label for="specialty" class="block text-sm font-medium">Specialty</label>
+                            <select id="specialty" class="w-full p-1 border border-gray-300 rounded-md">
+                                <option value="all">All</option>
+                                <option value="psychologist">Psychologist</option>
+                                <option value="psychiatrist">Psychiatrist</option>
+                                <option value="therapist">Therapist</option>
+                                <option value="social-worker">Social Worker</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="availability" class="block text-sm font-medium">Availability</label>
+                            <select id="availability" class="w-full p-1 border border-gray-300 rounded-md">
+                                <option value="any">Any</option>
+                                <option value="morning">Morning</option>
+                                <option value="afternoon">Afternoon</option>
+                                <option value="evening">Evening</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="location" class="block text-sm font-medium">Location</label>
+                            <input type="text" id="location" placeholder="Enter city or zip" class="w-full p-1 border border-gray-300 rounded-md">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <h3>Filter by</h3>
-            <div class="filter-grid">
-                <div>
-                    <label for="specialty">Specialty</label>
-                    <select id="specialty">
-                        <option value="all">All</option>
-                        <option value="psychologist">Psychologist</option>
-                        <option value="psychiatrist">Psychiatrist</option>
-                        <option value="therapist">Therapist</option>
-                        <option value="social-worker">Social Worker</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="availability">Availability</label>
-                    <select id="availability">
-                        <option value="any">Any</option>
-                        <option value="morning">Morning</option>
-                        <option value="afternoon">Afternoon</option>
-                        <option value="evening">Evening</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="location">Location</label>
-                    <input type="text" id="location" placeholder="Enter city or zip">
-                </div>
-            </div>
-        </div>
-
-        <div class="container">
-            <h2 style="text-align: center;">Available Professionals</h2>
-            <div class="grid" id="professional-list">
-                
+        <div class="container mx-auto p-4">
+            <h2 class="text-2xl font-bold text-center mb-8">Available Professionals</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" id="professional-list">
+                <!-- Professional cards will go here -->
             </div>
         </div>
     </div>
