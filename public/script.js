@@ -148,11 +148,8 @@ async function showPeerSupport() {
 }
 
 async function showProfessionals() {
-    document.getElementById('home-feed').style.display = 'none';
-    document.getElementById('chat-rooms').style.display = 'none';
-    document.getElementById('peer-support').style.display = 'none';
-    document.getElementById('professionals').style.display = 'block';
-    await fetchProfessionals();
+    window.location.href = "professional.html"; // Redirect to professionals.html
+    //await fetchProfessionals();
 }
 
 async function createPost() {
