@@ -9,31 +9,36 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: rgb(249, 250, 251);
   color: #1a1a1a;
+  min-height: 100vh; /* Ensure body is at least viewport height */
 }
 
-Layout
+/* Layout */
 .app-container {
   display: flex;
   min-height: 100vh;
+  position: relative;
 }
 
 /* Sidebar */
 .sidebar {
   position: fixed;
   width: 256px;
-  height: 100vh;
+  height: 100vh; /* Full viewport height */
   background-color: white;
   border-right: 1px solid rgb(229, 231, 235);
   padding: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  z-index: 1000;
+  overflow-y: auto; /* Add scrolling if content is too tall */
 }
 
 .sidebar-content {
   flex-grow: 1; /* Makes sure content grows while leaving space for logout */
+  display: flex;
+  flex-direction: column;
 }
-
 
 .logo {
   padding: 1rem;
@@ -41,7 +46,7 @@ Layout
 }
 
 .logo h1 {
-  color: rgb(37, 99, 235);
+  color: #8a4fff;
   font-size: 1.5rem;
   font-weight: bold;
 }
@@ -75,8 +80,8 @@ Layout
 }
 
 .nav-item.active {
-  background-color: rgb(239, 246, 255);
-  color: rgb(37, 99, 235);
+  background-color: #f5f0ff;
+  color: #8a4fff;
 }
 
 .icon {
@@ -86,9 +91,9 @@ Layout
 
 #logout-btn {
   width: auto;
-  margin: 20px auto 0;
+  margin: 20px auto 10px;
   padding: 8px 16px;
-  background: #666;
+  background: #8a4fff;
   color: white;
   border: none;
   border-radius: 4px;
@@ -98,9 +103,8 @@ Layout
 }
 
 #logout-btn:hover {
-  background:#4f4242;
+  background: #7b45e0;
 }
-
 
 /* Main Content */
 .main-content {
@@ -140,7 +144,7 @@ Layout
 }
 
 .search-box input:focus {
-  border-color: rgb(37, 99, 235);
+  border-color: #8a4fff;
 }
 
 /* Create Post */
@@ -199,7 +203,7 @@ textarea {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: rgb(37, 99, 235);
+  background-color: #8a4fff;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -210,7 +214,7 @@ textarea {
 }
 
 .post-btn:hover {
-  background-color: rgb(29, 78, 216);
+  background-color: #7b45e0;
 }
 
 /* Posts Feed */
@@ -271,8 +275,8 @@ textarea {
 }
 
 .post-action:hover {
-  color: rgb(37, 99, 235);
-  background-color: rgb(239, 246, 255);
+  color: #8a4fff;
+  background-color: #f5f0ff;
 }
 
 /* Custom Scrollbar */
@@ -291,4 +295,22 @@ textarea {
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgb(156, 163, 175);
+}
+
+/* Notification updates */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  max-width: 400px;
+  background-color: white;
+  color: #333;
+  padding: 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-100px);
+  opacity: 0;
+  transition: all 0.5s ease;
+  z-index: 9999;
+  overflow: hidden;
 }
