@@ -1,4 +1,317 @@
-// chatroom.js - Functionality for the SocialCare Chat interface
+// Chat System functionality
+
+// Main function to show chat interface
+async function showChatSystem(peerName = 'Peer') {
+    const mainContentArea = document.getElementById('main-content');
+    
+    if (mainContentArea) {
+        // First hide all content
+        Array.from(mainContentArea.children).forEach(child => {
+            child.style.display = 'none';
+        });
+        
+        // Check if chat content exists, if not create it
+        let chatContent = document.getElementById('chat-section');
+        if (!chatContent) {
+            chatContent = document.createElement('div');
+            chatContent.id = 'chat-section';
+            chatContent.innerHTML = `  
+
+                <div class="chat-container">
+                    <div class="contacts-section" id="contacts-section">
+                        <div class="contacts-header">
+                            <h3>Contacts</h3>
+                            <input type="text" id="search-contacts" placeholder="Search contacts...">
+                        </div>
+                        <div class="contacts-list" id="contacts-list">
+                            <!-- Contacts will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Chat messages will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <textarea id="chat-input" placeholder="Type your message..."></textarea>
+                    <button class="send-btn" onclick="sendMessage()">Send</button>
+                </div>
+            `;
+            mainContentArea.appendChild(chatContent);
+            
+            // Add styles for the chat system
+            addChatStyles();
+            
+            // Initialize with sample messages
+            loadSampleMessages();
+            
+            // Load contacts
+            loadContacts();
+        }
+        
+        // Show chat content
+        chatContent.style.display = 'block';
+    } else {
+        // Fallback - redirect if necessary
+        window.location.href = "chat.html";
+    }
+}
+
+// Function to add chat system styles
+function addChatStyles() {
+    // Check if styles already exist
+    if (document.getElementById('chat-styles')) return;
+    
+    const styleSheet = document.createElement("style");
+    styleSheet.id = 'chat-styles';
+    styleSheet.textContent = `
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chat-header h2 {
+            color: #1a1a1a;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        
+        .chat-container {
+            display: flex;
+            height: 80vh; /* Increased height */
+            border: 1px solid #e0e0e0;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .contacts-section {
+            width: 25%;
+            border-right: 1px solid #e0e0e0;
+            overflow-y: auto;
+        }
+        
+        .contacts-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            background-color: #f9f9f9;
+        }
+        
+        .contacts-header h3 {
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .contacts-header input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 0.25rem;
+        }
+        
+        .contacts-list {
+            padding: 1rem;
+        }
+        
+        .contact {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .contact:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .contact.active {
+            background-color: #e0e0e0;
+        }
+        
+        .contact-avatar {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            background-color: #8a4fff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+        }
+        
+        .contact-info {
+            flex: 1;
+        }
+        
+        .contact-name {
+            font-weight: bold;
+        }
+        
+        .contact-status {
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message.sent {
+            align-items: flex-end;
+        }
+        
+        .message.received {
+            align-items: flex-start;
+        }
+        
+        .message-content {
+            max-width: 70%;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            position: relative;
+        }
+        
+        .message.sent .message-content {
+            background-color: #8a4fff;
+            color: white;
+        }
+        
+        .message.received .message-content {
+            background-color: #e0e0e0;
+            color: #1a1a1a;
+        }
+        
+        .message-timestamp {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        .chat-input-area {
+            display: flex;
+            border-top: 1px solid #e0e0e0;
+            padding: 0.75rem;
+            background-color: white;
+            align-items: flex-end; /* Align items to the bottom */
+        }
+        
+        #chat-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 0.5rem;
+            resize: none;
+            margin-right: 0.75rem;
+        }
+        
+        #chat-input:focus {
+            border-color: #8a4fff;
+            outline: none;
+        }
+        
+        .send-btn {
+            background-color: #8a4fff;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem; /* Thicker button */
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .send-btn:hover {
+            background-color: #7b45e0;
+        }
+    `;
+    document.head.appendChild(styleSheet);
+}
+
+// Sample data loader functions
+function loadSampleMessages() {
+    const messages = [
+        {
+            sender: 'peer',
+            content: 'Hi there! How can I help you today?',
+            timestamp: '10:00 AM'
+        },
+        {
+            sender: 'user',
+            content: 'Hi! I\'ve been feeling really anxious lately.',
+            timestamp: '10:01 AM'
+        },
+        {
+            sender: 'peer',
+            content: 'I\'m sorry to hear that. Can you tell me more about what\'s been going on?',
+            timestamp: '10:02 AM'
+        }
+    ];
+    
+    const chatMessagesContainer = document.getElementById('chat-messages');
+    chatMessagesContainer.innerHTML = '';
+    
+    messages.forEach(message => {
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${message.sender === 'user' ? 'sent' : 'received'}`;
+        messageElement.innerHTML = `
+            <div class="message-content">${message.content}</div>
+            <div class="message-timestamp">${message.timestamp}</div>
+        `;
+        chatMessagesContainer.appendChild(messageElement);
+    });
+    
+    // Scroll to the bottom of the chat
+    chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+}
+
+// Event handler functions
+function sendMessage() {
+    const chatInput = document.getElementById('chat-input');
+    const messageContent = chatInput.value.trim();
+    
+    if (messageContent) {
+        const chatMessagesContainer = document.getElementById('chat-messages');
+        
+        // Create new message element
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message sent';
+        messageElement.innerHTML = `
+            <div class="message-content">${messageContent}</div>
+            <div class="message-timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+        `;
+        chatMessagesContainer.appendChild(messageElement);
+        
+        // Clear input
+        chatInput.value = '';
+        
+        // Scroll to the bottom of the chat
+        chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        
+        // Simulate a response from the peer
+        setTimeout(() => {
+            const responseElement = document.createElement('div');
+            responseElement.className = 'message received';
+            responseElement.innerHTML = `
+                <div class="message-content">Thanks for sharing. Let's talk more about this.</div>
+                <div class="message-timestamp">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+            `;
+            chatMessagesContainer.appendChild(responseElement);
+            
+            // Scroll to the bottom of the chat
+            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        }, 1000);
+    }
+}
 
 // Global variables
 let currentUserId = "current-user"; // Replace with actual user ID when available
@@ -272,85 +585,6 @@ function loadEmojiPicker() {
     });
 }
 
-// Send a message
-function sendMessage() {
-    console.log("sendMessage function called");
-    const messageInput = document.getElementById('message-input');
-    if (!messageInput) {
-        console.error("Message input element not found");
-        return;
-    }
-    
-    const message = messageInput.value.trim();
-    console.log("Message content:", message);
-    
-    if (message === '') {
-        console.log("Message is empty, not sending");
-        return;
-    }
-    
-    // Get current time
-    const now = new Date();
-    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    
-    // Add message to chat
-    addMessage(message, 'outgoing', 'You', 'A', time);
-    
-    // Clear input
-    messageInput.value = '';
-    
-    // Focus on input
-    messageInput.focus();
-    
-    // Simulate the other person typing
-    showTypingIndicator();
-    
-    // In a real app, you would send the message to an API
-    // For this demo, we'll simulate a reply after a delay
-    setTimeout(() => {
-        hideTypingIndicator();
-        
-        // Example response based on message content
-        let response;
-        const lowercaseMsg = message.toLowerCase();
-        
-        if (lowercaseMsg.includes('hello') || lowercaseMsg.includes('hi')) {
-            response = "Hello! How are you feeling today?";
-        } else if (lowercaseMsg.includes('anxiety') || lowercaseMsg.includes('anxious')) {
-            response = "I understand anxiety can be challenging. Have you tried any relaxation techniques?";
-        } else if (lowercaseMsg.includes('depression') || lowercaseMsg.includes('sad')) {
-            response = "I'm sorry to hear you're feeling this way. Would you like to talk more about what's been happening?";
-        } else if (lowercaseMsg.includes('thank')) {
-            response = "You're welcome! I'm here anytime you need to talk.";
-        } else {
-            response = "Thank you for sharing. How does that make you feel?";
-        }
-        
-        addMessage(response, 'incoming', currentContact.name, currentContact.avatar, time);
-    }, 2000);
-}
-
-// Show typing indicator
-function showTypingIndicator() {
-    const typingIndicator = document.getElementById('typing-indicator');
-    if (!typingIndicator) {
-        console.error("Typing indicator element not found");
-        return;
-    }
-    
-    document.getElementById('typing-avatar').textContent = currentContact.avatar;
-    document.getElementById('typing-name').textContent = `${currentContact.name} is typing`;
-    typingIndicator.style.display = 'flex';
-}
-
-// Hide typing indicator
-function hideTypingIndicator() {
-    const typingIndicator = document.getElementById('typing-indicator');
-    if (typingIndicator) {
-        typingIndicator.style.display = 'none';
-    }
-}
-
 // Show notification
 function showNotification(message) {
     const notification = document.getElementById('notification');
@@ -366,3 +600,13 @@ function showNotification(message) {
         notification.classList.remove('active');
     }, 3000);
 }
+
+// Export the showChatSystem function for use in script.js
+window.showChatSystem = showChatSystem;
+window.sendMessage = sendMessage;
+window.showNotification = showNotification;
+window.loadContacts = loadContacts;
+window.loadMessages = loadMessages;
+window.addMessage = addMessage;
+window.changeContact = changeContact;
+window.setupEventListeners = setupEventListeners;
