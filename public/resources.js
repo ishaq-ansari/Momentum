@@ -11,713 +11,68 @@ async function showResources() {
             child.style.display = 'none';
         });
         
-        // Check if resources content exists, if not create it
+        // Check if resources content exists, if not load it from template
         let resourcesContent = document.getElementById('resources-section');
         if (!resourcesContent) {
-            resourcesContent = document.createElement('div');
-            resourcesContent.id = 'resources-section';
-            resourcesContent.innerHTML = `
-                <div class="section-header">
-                    <h2>Mental Health Resources</h2>
-                    <p>Find professional support and services near you.</p>
-                </div>
+            // Load the template HTML
+            try {
+                const response = await fetch('templates/resources.html');
+                const templateHTML = await response.text();
                 
-                <div class="resource-search-container">
-                    <div class="search-box">
-                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                        <input type="text" placeholder="Search by keyword..." class="search-input" id="resource-search-input">
-                    </div>
-                    
-                    <div class="filter-options">
-                        <select id="country-filter" class="filter-select">
-                            <option value="">Select Country</option>
-                            <option value="us">United States</option>
-                            <option value="ca">Canada</option>
-                            <option value="uk">United Kingdom</option>
-                            <option value="au">Australia</option>
-                            <!-- More countries can be added -->
-                        </select>
-                        
-                        <select id="state-filter" class="filter-select" disabled>
-                            <option value="">Select State/Province</option>
-                            <!-- States will be populated based on country selection -->
-                        </select>
-                        
-                        <select id="resource-type-filter" class="filter-select">
-                            <option value="">All Resource Types</option>
-                            <option value="crisis">Crisis Support</option>
-                            <option value="therapy">Therapy Services</option>
-                            <option value="support-group">Support Groups</option>
-                            <option value="inpatient">Inpatient Care</option>
-                            <option value="community">Community Services</option>
-                        </select>
-                    </div>
-                    
-                    <div class="location-finder">
-                        <button id="use-my-location" class="secondary-btn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                            Use My Location
-                        </button>
-                    </div>
-                </div>
+                // Create a container and insert the template HTML
+                const tempContainer = document.createElement('div');
+                tempContainer.innerHTML = templateHTML;
                 
-                <div class="resources-results-container">
-                    <div class="results-header">
-                        <h3>Nearest Resources</h3>
-                        <div class="results-count">Loading resources...</div>
-                    </div>
-                    
-                    <div class="resources-grid" id="resources-container">
-                        <!-- Resource cards will be loaded here -->
-                        <div class="loading-spinner">
-                            <div class="spinner"></div>
-                        </div>
-                    </div>
-                </div>
+                // Append the template content to main content area
+                while (tempContainer.firstChild) {
+                    mainContentArea.appendChild(tempContainer.firstChild);
+                }
                 
-                <div class="resource-map-container">
-                    <h3>Resources Map</h3>
-                    <div id="resources-map" class="map-container">
-                        <!-- Map will be loaded here -->
-                        <div class="map-placeholder">
-                            Map loading...
-                        </div>
-                    </div>
-                </div>
+                // Add event listeners for the resources functionality
+                document.getElementById('country-filter').addEventListener('change', function(e) {
+                    populateStatesDropdown(e.target.value);
+                });
                 
-                <div class="section-divider"></div>
+                document.getElementById('resource-country').addEventListener('change', function(e) {
+                    populateSubmissionStatesDropdown(e.target.value);
+                });
                 
-                <div class="emergency-resources">
-                    <div class="emergency-card">
-                        <h3>Need Immediate Help?</h3>
-                        <p>If you or someone you know is in crisis, please use these emergency resources:</p>
-                        <div class="emergency-contacts">
-                            <div class="emergency-contact-item">
-                                <strong>National Suicide Prevention Lifeline:</strong> 
-                                <a href="tel:988">988</a> or <a href="tel:1-800-273-8255">1-800-273-8255</a>
-                            </div>
-                            <div class="emergency-contact-item">
-                                <strong>Crisis Text Line:</strong> 
-                                Text HOME to <a href="sms:741741">741741</a>
-                            </div>
-                            <div class="emergency-contact-item">
-                                <strong>Emergency Services:</strong> 
-                                <a href="tel:911">911</a> (US) or local emergency number
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                document.getElementById('resource-search-input').addEventListener('input', filterResources);
+                document.getElementById('state-filter').addEventListener('change', filterResources);
+                document.getElementById('resource-type-filter').addEventListener('change', filterResources);
                 
-                <div class="section-divider"></div>
+                document.getElementById('use-my-location').addEventListener('click', getUserLocation);
                 
-                <div class="resource-submission">
-                    <div class="submission-card">
-                        <h3>Know a Resource?</h3>
-                        <p>Help us build our directory by submitting mental health resources in your area.</p>
-                        <button class="primary-btn" onclick="showResourceSubmissionForm()">Submit a Resource</button>
-                    </div>
-                </div>
+                document.getElementById('resource-submission-form-element').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitResourceForm();
+                });
                 
-                <div id="resource-submission-form" class="modal" style="display: none;">
-                    <div class="modal-content">
-                        <span class="close-btn" onclick="hideResourceSubmissionForm()">&times;</span>
-                        <h3>Submit a Mental Health Resource</h3>
-                        <form id="resource-submission-form-element">
-                            <div class="form-group">
-                                <label for="resource-name">Resource Name*</label>
-                                <input type="text" id="resource-name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="resource-type">Resource Type*</label>
-                                <select id="resource-type" required>
-                                    <option value="">Select Type</option>
-                                    <option value="crisis">Crisis Support</option>
-                                    <option value="therapy">Therapy Services</option>
-                                    <option value="support-group">Support Groups</option>
-                                    <option value="inpatient">Inpatient Care</option>
-                                    <option value="community">Community Services</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="resource-description">Description*</label>
-                                <textarea id="resource-description" rows="3" required placeholder="Briefly describe the services offered..."></textarea>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group half-width">
-                                    <label for="resource-country">Country*</label>
-                                    <select id="resource-country" required>
-                                        <option value="">Select Country</option>
-                                        <option value="us">United States</option>
-                                        <option value="ca">Canada</option>
-                                        <option value="uk">United Kingdom</option>
-                                        <option value="au">Australia</option>
-                                    </select>
-                                </div>
-                                <div class="form-group half-width">
-                                    <label for="resource-state">State/Province*</label>
-                                    <select id="resource-state" required disabled>
-                                        <option value="">Select State/Province</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="resource-address">Address*</label>
-                                <input type="text" id="resource-address" required>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group half-width">
-                                    <label for="resource-phone">Phone Number</label>
-                                    <input type="tel" id="resource-phone">
-                                </div>
-                                <div class="form-group half-width">
-                                    <label for="resource-website">Website</label>
-                                    <input type="url" id="resource-website" placeholder="https://">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="submitter-email">Your Email*</label>
-                                <input type="email" id="submitter-email" required>
-                                <small>We may contact you to verify this information.</small>
-                            </div>
-                            <button type="submit" class="primary-btn">Submit Resource</button>
-                        </form>
-                    </div>
-                </div>
-            `;
-            mainContentArea.appendChild(resourcesContent);
-            
-            // Add styles for the resources section
-            addResourcesStyles();
-            
-            // Add event listeners for the resources functionality
-            document.getElementById('country-filter').addEventListener('change', function(e) {
-                populateStatesDropdown(e.target.value);
-            });
-            
-            document.getElementById('resource-country').addEventListener('change', function(e) {
-                populateSubmissionStatesDropdown(e.target.value);
-            });
-            
-            document.getElementById('resource-search-input').addEventListener('input', filterResources);
-            document.getElementById('state-filter').addEventListener('change', filterResources);
-            document.getElementById('resource-type-filter').addEventListener('change', filterResources);
-            
-            document.getElementById('use-my-location').addEventListener('click', getUserLocation);
-            
-            document.getElementById('resource-submission-form-element').addEventListener('submit', function(e) {
-                e.preventDefault();
-                submitResourceForm();
-            });
-            
-            // Initialize the resources map
-            initializeResourcesMap();
-            
-            // Load sample resources data (in a real app, this would fetch from an API)
-            loadResourcesData();
+                // Initialize the resources map
+                initializeResourcesMap();
+                
+                // Load sample resources data (in a real app, this would fetch from an API)
+                loadResourcesData();
+            } catch (error) {
+                console.error('Error loading resources template:', error);
+                showNotification('Failed to load resources content.', 'error');
+            }
+        } else {
+            // Template is already loaded, just display it
+            resourcesContent.style.display = 'block';
         }
         
-        // Show resources content
-        resourcesContent.style.display = 'block';
+        // Load the resources CSS if it's not already loaded
+        if (!document.querySelector('link[href="css/resources.css"]')) {
+            const linkElem = document.createElement('link');
+            linkElem.rel = 'stylesheet';
+            linkElem.href = 'css/resources.css';
+            document.head.appendChild(linkElem);
+        }
     } else {
         // Fallback - redirect if necessary
         window.location.href = "resources.html";
     }
-}
-
-// Function to add resources styles
-function addResourcesStyles() {
-    // Check if styles already exist
-    if (document.getElementById('resources-styles')) return;
-    
-    const styleSheet = document.createElement("style");
-    styleSheet.id = 'resources-styles';
-    styleSheet.textContent = `
-        .section-header {
-            margin-bottom: 2rem;
-        }
-        
-        .section-header h2 {
-            color: #1a1a1a;
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .section-header p {
-            color: #666;
-            font-size: 1rem;
-        }
-        
-        .resource-search-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            align-items: center;
-            background-color: #f8f5ff;
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-        }
-        
-        .search-box {
-            position: relative;
-            flex: 1;
-            min-width: 250px;
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
-            color: #8a4fff;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 0.75rem 0.75rem 0.75rem 2.5rem;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            outline: none;
-            font-size: 0.9rem;
-        }
-        
-        .search-input:focus {
-            border-color: #8a4fff;
-        }
-        
-        .filter-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            flex: 2;
-            min-width: 300px;
-        }
-        
-        .filter-select {
-            padding: 0.75rem;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            outline: none;
-            flex: 1;
-            min-width: 120px;
-            font-size: 0.9rem;
-        }
-        
-        .filter-select:focus {
-            border-color: #8a4fff;
-        }
-        
-        .filter-select:disabled {
-            background-color: #f5f5f5;
-            cursor: not-allowed;
-        }
-        
-        .location-finder {
-            display: flex;
-            align-items: center;
-        }
-        
-        .secondary-btn {
-            background-color: #e6deff;
-            color: #8a4fff;
-            border: none;
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .secondary-btn:hover {
-            background-color: #d9caff;
-        }
-        
-        .resources-results-container {
-            margin-bottom: 2rem;
-        }
-        
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .results-header h3 {
-            font-size: 1.3rem;
-            color: #333;
-        }
-        
-        .results-count {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .resources-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            position: relative;
-            min-height: 200px;
-        }
-        
-        .resource-card {
-            background-color: white;
-            border-radius: 0.5rem;
-            border: 1px solid rgb(229, 231, 235);
-            padding: 1.5rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .resource-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-        
-        .resource-type-tag {
-            display: inline-block;
-            padding: 0.3rem 0.6rem;
-            background-color: #f0f0f0;
-            color: #666;
-            border-radius: 1rem;
-            font-size: 0.8rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .crisis-tag { background-color: #ffecef; color: #d32f2f; }
-        .therapy-tag { background-color: #e8f4fd; color: #1976d2; }
-        .support-group-tag { background-color: #e8f5e9; color: #388e3c; }
-        .inpatient-tag { background-color: #fff3e0; color: #f57c00; }
-        .community-tag { background-color: #f3e5f5; color: #7b1fa2; }
-        
-        .resource-name {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .resource-description {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 1rem;
-            flex-grow: 1;
-        }
-        
-        .resource-address {
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-        
-        .resource-address svg, 
-        .resource-phone svg,
-        .resource-website svg {
-            flex-shrink: 0;
-            margin-top: 0.2rem;
-        }
-        
-        .resource-phone, .resource-website {
-            font-size: 0.85rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-        
-        .resource-phone a, .resource-website a {
-            color: #8a4fff;
-            text-decoration: none;
-        }
-        
-        .resource-phone a:hover, .resource-website a:hover {
-            text-decoration: underline;
-        }
-        
-        .resource-distance {
-            font-size: 0.8rem;
-            color: #8a4fff;
-            margin-bottom: 1rem;
-        }
-        
-        .resource-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-        
-        .view-on-map-btn {
-            background-color: #e6deff;
-            color: #8a4fff;
-            border: none;
-            flex: 1;
-            border-radius: 0.25rem;
-            padding: 0.5rem;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .view-on-map-btn:hover {
-            background-color: #d9caff;
-        }
-        
-        .get-directions-btn {
-            background-color: #8a4fff;
-            color: white;
-            border: none;
-            flex: 1;
-            border-radius: 0.25rem;
-            padding: 0.5rem;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .get-directions-btn:hover {
-            background-color: #7b45e0;
-        }
-        
-        .loading-spinner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(138, 79, 255, 0.2);
-            border-radius: 50%;
-            border-top-color: #8a4fff;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .resource-map-container {
-            margin-bottom: 2rem;
-        }
-        
-        .resource-map-container h3 {
-            font-size: 1.3rem;
-            color: #333;
-            margin-bottom: 1rem;
-        }
-        
-        .map-container {
-            height: 400px;
-            background-color: #f0f0f0;
-            border-radius: 0.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .map-placeholder {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #666;
-            font-size: 1.2rem;
-        }
-        
-        .section-divider {
-            height: 1px;
-            background-color: #e0e0e0;
-            margin: 2rem 0;
-        }
-        
-        .emergency-resources {
-            margin-bottom: 2rem;
-        }
-        
-        .emergency-card {
-            background-color: #fff5f5;
-            border: 1px solid #ffcccc;
-            border-left: 4px solid #d32f2f;
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-        }
-        
-        .emergency-card h3 {
-            color: #d32f2f;
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .emergency-contacts {
-            margin-top: 1rem;
-        }
-        
-        .emergency-contact-item {
-            margin-bottom: 0.75rem;
-            font-size: 0.95rem;
-        }
-        
-        .emergency-contact-item a {
-            color: #d32f2f;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .emergency-contact-item a:hover {
-            text-decoration: underline;
-        }
-        
-        .submission-card {
-            background-color: #f5f0ff;
-            border: 1px solid #e6d8ff;
-            border-radius: 0.5rem;
-            padding: 2rem;
-            text-align: center;
-        }
-        
-        .submission-card h3 {
-            color: #8a4fff;
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .primary-btn {
-            background-color: #8a4fff;
-            color: white;
-            border: none;
-            border-radius: 0.25rem;
-            padding: 0.75rem 1.5rem;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .primary-btn:hover {
-            background-color: #7b45e0;
-        }
-        
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background-color: white;
-            border-radius: 0.5rem;
-            padding: 2rem;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        
-        .close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 1.5rem;
-            color: #666;
-            cursor: pointer;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-row {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 0;
-        }
-        
-        .half-width {
-            flex: 1;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        
-        .form-group input, 
-        .form-group textarea, 
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #e0e0e0;
-            border-radius: 0.25rem;
-            font-size: 0.9rem;
-        }
-        
-        .form-group input:focus, 
-        .form-group textarea:focus, 
-        .form-group select:focus {
-            border-color: #8a4fff;
-            outline: none;
-        }
-        
-        .form-group small {
-            display: block;
-            margin-top: 0.25rem;
-            color: #666;
-            font-size: 0.8rem;
-        }
-        
-        /* No results message */
-        .no-results {
-            grid-column: 1 / -1;
-            padding: 2rem;
-            text-align: center;
-            background-color: #f5f5f5;
-            border-radius: 0.5rem;
-            color: #666;
-        }
-        
-        /* Responsive styles */
-        @media (max-width: 768px) {
-            .resource-search-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .filter-options {
-                flex-direction: column;
-            }
-            
-            .form-row {
-                flex-direction: column;
-                gap: 1.5rem;
-            }
-        }
-    `;
-    document.head.appendChild(styleSheet);
 }
 
 // Function to populate states dropdown based on country selection
@@ -896,7 +251,6 @@ function loadResourcesData() {
     }
 }
 
-// Function to load resources by user location
 // Function to load resources by user location
 function loadResourcesByLocation(location) {
     // In a real application, this would fetch data from an API based on coordinates
@@ -1470,28 +824,9 @@ function getSampleResources() {
     ];
 }
 
-// // Add this function to the main application initialization
-// function initMentalHealthResources() {
-//     // Add event listener to resources link/button
-//     const resourcesLink = document.getElementById('resources-link');
-//     if (resourcesLink) {
-//         resourcesLink.addEventListener('click', function(e) {
-//             e.preventDefault();
-//             showResources();
-//         });
-//     }
-    
-//     // Check if we should show resources on page load (e.g., based on URL)
-//     if (window.location.hash === '#resources') {
-//         showResources();
-//     }
-// }
-
-// // Initialize when the DOM is fully loaded
-// document.addEventListener('DOMContentLoaded', initMentalHealthResources);
-
-
-
 // Export the resources function for use in script.js
-// Note: This would usually use export/import syntax, but for basic HTML script inclusion we make it globally available
 window.showResources = showResources;
+window.viewResourceOnMap = viewResourceOnMap;
+window.getDirectionsToResource = getDirectionsToResource;
+window.showResourceSubmissionForm = showResourceSubmissionForm;
+window.hideResourceSubmissionForm = hideResourceSubmissionForm;

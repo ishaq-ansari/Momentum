@@ -1,0 +1,52 @@
+<!-- Professionals Template -->
+<div id="professionals-section">
+    <div class="section-header">
+        <h2>Mental Health Professionals</h2>
+        <p>Connect with licensed professionals for personalized support.</p>
+    </div>
+    
+    <div class="filter-container">
+        <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" placeholder="Search by name or specialty..." class="search-input" id="professional-search-input">
+        </div>
+        <div class="filter-options">
+            <select id="specialty-filter" class="filter-select">
+                <option value="">All Specialties</option>
+                <option value="psychiatrist">Psychiatrist</option>
+                <option value="psychologist">Psychologist</option>
+                <option value="therapist">Therapist</option>
+                <option value="counselor">Counselor</option>
+                <option value="social-worker">Social Worker</option>
+            </select>
+            <select id="availability-filter" class="filter-select">
+                <option value="">Any Availability</option>
+                <option value="today">Today</option>
+                <option value="this-week">This Week</option>
+                <option value="next-week">Next Week</option>
+            </select>
+            <select id="session-type-filter" class="filter-select">
+                <option value="">Any Session Type</option>
+                <option value="video">Video Call</option>
+                <option value="phone">Phone Call</option>
+                <option value="in-person">In Person</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="professionals-grid" id="professionals-container">
+        <!-- Professional cards will be loaded here -->
+    </div>
+    
+    <div id="appointment-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="hideAppointmentModal()">&times;</span>
+            <div id="appointment-form-content">
+                <!-- Appointment form will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>

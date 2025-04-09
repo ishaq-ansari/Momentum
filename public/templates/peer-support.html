@@ -1,0 +1,93 @@
+<!-- Peer Support Template -->
+<div id="peer-support-section">
+    <div class="section-header">
+        <h2>Peer Support Network</h2>
+        <p>Connect with others who understand what you're going through.</p>
+    </div>
+    
+    <div class="filter-container">
+        <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" placeholder="Search peers by name or interest..." class="search-input" id="peer-search-input">
+        </div>
+        <div class="filter-options">
+            <select id="topic-filter" class="filter-select">
+                <option value="">All Topics</option>
+                <option value="anxiety">Anxiety</option>
+                <option value="depression">Depression</option>
+                <option value="stress">Stress Management</option>
+                <option value="wellness">General Wellness</option>
+                <option value="relationships">Relationships</option>
+            </select>
+            <select id="availability-filter" class="filter-select">
+                <option value="">Any Availability</option>
+                <option value="available-now">Available Now</option>
+                <option value="today">Today</option>
+                <option value="this-week">This Week</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="peers-grid" id="peers-container">
+        <!-- Peer cards will be loaded here -->
+    </div>
+    
+    <div class="section-divider"></div>
+    
+    <div class="support-groups-section">
+        <h3>Support Groups</h3>
+        <p>Join a group discussion led by peers with similar experiences.</p>
+        
+        <div class="groups-grid" id="groups-container">
+            <!-- Group cards will be loaded here -->
+        </div>
+    </div>
+    
+    <div class="section-divider"></div>
+    
+    <div class="become-peer-section">
+        <div class="become-peer-card">
+            <h3>Become a Peer Supporter</h3>
+            <p>Share your experiences and help others on their journey.</p>
+            <button class="primary-btn" onclick="showBecomePeerForm()">Learn More</button>
+        </div>
+    </div>
+</div>
+
+<!-- Become Peer Form Modal -->
+<div id="become-peer-form" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-btn" onclick="hideBecomePeerForm()">&times;</span>
+        <h3>Become a Peer Supporter</h3>
+        <form id="peer-application-form">
+            <div class="form-group">
+                <label for="peer-experience">What experiences would you like to share with others?</label>
+                <textarea id="peer-experience" rows="4" placeholder="Tell us about your journey..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="peer-topics">What topics are you comfortable discussing?</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="topics" value="anxiety"> Anxiety</label>
+                    <label><input type="checkbox" name="topics" value="depression"> Depression</label>
+                    <label><input type="checkbox" name="topics" value="stress"> Stress Management</label>
+                    <label><input type="checkbox" name="topics" value="relationships"> Relationships</label>
+                    <label><input type="checkbox" name="topics" value="wellness"> General Wellness</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="peer-availability">Your typical availability</label>
+                <select id="peer-availability">
+                    <option value="">Select availability</option>
+                    <option value="weekday-mornings">Weekday Mornings</option>
+                    <option value="weekday-evenings">Weekday Evenings</option>
+                    <option value="weekends">Weekends</option>
+                    <option value="flexible">Flexible</option>
+                </select>
+            </div>
+            <button type="submit" class="primary-btn">Submit Application</button>
+        </form>
+    </div>
+</div>

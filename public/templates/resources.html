@@ -1,0 +1,175 @@
+<!-- Resources Template -->
+<div id="resources-section">
+    <div class="section-header">
+        <h2>Mental Health Resources</h2>
+        <p>Find professional support and services near you.</p>
+    </div>
+    
+    <div class="resource-search-container">
+        <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" placeholder="Search by keyword..." class="search-input" id="resource-search-input">
+        </div>
+        
+        <div class="filter-options">
+            <select id="country-filter" class="filter-select">
+                <option value="">Select Country</option>
+                <option value="us">United States</option>
+                <option value="ca">Canada</option>
+                <option value="uk">United Kingdom</option>
+                <option value="au">Australia</option>
+                <!-- More countries can be added -->
+            </select>
+            
+            <select id="state-filter" class="filter-select" disabled>
+                <option value="">Select State/Province</option>
+                <!-- States will be populated based on country selection -->
+            </select>
+            
+            <select id="resource-type-filter" class="filter-select">
+                <option value="">All Resource Types</option>
+                <option value="crisis">Crisis Support</option>
+                <option value="therapy">Therapy Services</option>
+                <option value="support-group">Support Groups</option>
+                <option value="inpatient">Inpatient Care</option>
+                <option value="community">Community Services</option>
+            </select>
+        </div>
+        
+        <div class="location-finder">
+            <button id="use-my-location" class="secondary-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Use My Location
+            </button>
+        </div>
+    </div>
+    
+    <div class="resources-results-container">
+        <div class="results-header">
+            <h3>Nearest Resources</h3>
+            <div class="results-count">Loading resources...</div>
+        </div>
+        
+        <div class="resources-grid" id="resources-container">
+            <!-- Resource cards will be loaded here -->
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="resource-map-container">
+        <h3>Resources Map</h3>
+        <div id="resources-map" class="map-container">
+            <!-- Map will be loaded here -->
+            <div class="map-placeholder">
+                Map loading...
+            </div>
+        </div>
+    </div>
+    
+    <div class="section-divider"></div>
+    
+    <div class="emergency-resources">
+        <div class="emergency-card">
+            <h3>Need Immediate Help?</h3>
+            <p>If you or someone you know is in crisis, please use these emergency resources:</p>
+            <div class="emergency-contacts">
+                <div class="emergency-contact-item">
+                    <strong>National Suicide Prevention Lifeline:</strong> 
+                    <a href="tel:988">988</a> or <a href="tel:1-800-273-8255">1-800-273-8255</a>
+                </div>
+                <div class="emergency-contact-item">
+                    <strong>Crisis Text Line:</strong> 
+                    Text HOME to <a href="sms:741741">741741</a>
+                </div>
+                <div class="emergency-contact-item">
+                    <strong>Emergency Services:</strong> 
+                    <a href="tel:911">911</a> (US) or local emergency number
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section-divider"></div>
+    
+    <div class="resource-submission">
+        <div class="submission-card">
+            <h3>Know a Resource?</h3>
+            <p>Help us build our directory by submitting mental health resources in your area.</p>
+            <button class="primary-btn" onclick="showResourceSubmissionForm()">Submit a Resource</button>
+        </div>
+    </div>
+    
+    <div id="resource-submission-form" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="hideResourceSubmissionForm()">&times;</span>
+            <h3>Submit a Mental Health Resource</h3>
+            <form id="resource-submission-form-element">
+                <div class="form-group">
+                    <label for="resource-name">Resource Name*</label>
+                    <input type="text" id="resource-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="resource-type">Resource Type*</label>
+                    <select id="resource-type" required>
+                        <option value="">Select Type</option>
+                        <option value="crisis">Crisis Support</option>
+                        <option value="therapy">Therapy Services</option>
+                        <option value="support-group">Support Groups</option>
+                        <option value="inpatient">Inpatient Care</option>
+                        <option value="community">Community Services</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="resource-description">Description*</label>
+                    <textarea id="resource-description" rows="3" required placeholder="Briefly describe the services offered..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="resource-country">Country*</label>
+                        <select id="resource-country" required>
+                            <option value="">Select Country</option>
+                            <option value="us">United States</option>
+                            <option value="ca">Canada</option>
+                            <option value="uk">United Kingdom</option>
+                            <option value="au">Australia</option>
+                        </select>
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="resource-state">State/Province*</label>
+                        <select id="resource-state" required disabled>
+                            <option value="">Select State/Province</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="resource-address">Address*</label>
+                    <input type="text" id="resource-address" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="resource-phone">Phone Number</label>
+                        <input type="tel" id="resource-phone">
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="resource-website">Website</label>
+                        <input type="url" id="resource-website" placeholder="https://">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="submitter-email">Your Email*</label>
+                    <input type="email" id="submitter-email" required>
+                    <small>We may contact you to verify this information.</small>
+                </div>
+                <button type="submit" class="primary-btn">Submit Resource</button>
+            </form>
+        </div>
+    </div>
+</div>
