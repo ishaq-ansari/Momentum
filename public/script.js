@@ -6,14 +6,14 @@ let token = localStorage.getItem('token');
 
 // Function to apply home.css dynamically
 function applyHomeCSS() {
-    document.getElementById("cssLink").setAttribute("href", "home.css"); // Switch to home style
+    document.getElementById("cssLink").setAttribute("href", "home.css");
     document.getElementById("auth-container").style.display = "none";
-    document.getElementById("app-container").style.display = "flex"; // Changed to flex to work with sidebar layout
+    document.getElementById("app-container").style.display = "flex";
 }
 
 // Function to remove home.css
 function removeHomeCSS() {
-    document.getElementById("cssLink").setAttribute("href", "style.css"); // Switch back to login style
+    document.getElementById("cssLink").setAttribute("href", "style.css");
 }
 
 // Notification Functions
@@ -127,10 +127,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     
     // Check if user is already logged in
     if (token) {
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('app-container').style.display = 'flex'; // Changed to flex
         applyHomeCSS();
-        showHomeFeed();
+        setTimeout(() => {
+            showHomeFeed();
+            fetchPosts();
+        }, 500);
     }
 });
 
@@ -171,20 +172,26 @@ function showResources() {
 
 // Auth Functions
 async function handleLogin() {
-    const username = document.getElementById('login-username').value;
+    const identifier = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
-
+    
     // Simple validation
-    if (!username || !password) {
-        showNotification('Please enter both username and password', 'error');
+    if (!identifier || !password) {
+        showNotification('Please enter both username/email and password', 'error');
         return;
     }
-
+    
     try {
+        // Determine if the input is an email or username
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+        const payload = isEmail 
+            ? { email: identifier, password } 
+            : { username: identifier, password };
+        
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify(payload)
         });
 
         const data = await response.json();
@@ -208,7 +215,7 @@ async function handleLogin() {
             showHomeFeed(); // Show the home feed after login
             await fetchPosts();
         } else {
-            showNotification(data.message || 'Login failed', 'error');
+            showNotification(data.error || 'Login failed', 'error');
         }
     } catch (error) {
         showNotification('Error logging in. Please try again.', 'error');
