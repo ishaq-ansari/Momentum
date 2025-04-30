@@ -8,7 +8,9 @@ const Post = require('../models/Post');
 // Get all posts
 router.get('/', auth, async (req, res) => {
     try {
-        const posts = await Post.find({}).sort({ createdAt: -1 });
+        const posts = await Post.find({})
+            .populate('userId', 'username') // Populate user info to get the username
+            .sort({ createdAt: -1 });
         res.json(posts);
     } catch (err) {
         res.status(500).json({ message: 'Server error' });

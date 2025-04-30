@@ -457,7 +457,6 @@ async function fetchPosts() {
 }
 
 // Rest of the functions remain similar but with notification support instead of alerts
-
 function renderPosts(posts) {
     const postsContainer = document.getElementById('posts-container');
     postsContainer.innerHTML = '';
@@ -470,10 +469,14 @@ function renderPosts(posts) {
     posts.forEach(post => {
         const postElement = document.createElement('div');
         postElement.className = 'post';
+        
+        // Check if post is anonymous, otherwise show the username from populated userId
+        const authorText = post.anonymous ? 
+            'Anonymous' : 
+            `Posted by ${post.userId?.username || 'User'}`;
+            
         postElement.innerHTML = `
-            <div class="post-author">
-                ${post.anonymous ? 'Anonymous' : 'Posted by'} ${post.anonymous ? '' : 'User'}
-            </div>
+            <div class="post-author">${authorText}</div>
             <div class="post-content">${post.text}</div>
         `;
         postsContainer.appendChild(postElement);
