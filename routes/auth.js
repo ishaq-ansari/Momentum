@@ -10,6 +10,7 @@ const { sendEmail } = require('../utils/email');
 const config = require('../config/config');
 const { validateRegistration, validateLogin } = require('../middleware/validation');
 const crypto = require('crypto');
+const auth = require('../middleware/auth');
 
 router.post('/register', validateRegistration, async (req, res) => {
     try {
@@ -259,6 +260,151 @@ router.post('/reset-password/:token', async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Error resetting password'
+        });
+    }
+});
+
+// Get current user profile
+router.get('/me', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password -resetToken -resetTokenExpiry -verificationToken -verificationTokenExpiry');
+        
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                error: 'User not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            user
+        });
+    } catch (err) {
+        console.error('Get profile error:', err);
+        res.status(500).json({
+            success: false,
+            error: 'Error fetching user profile'
+        });
+    }
+});
+
+// Update user profile information
+router.put('/profile', auth, async (req, res) => {
+    try {
+        const { username, email, bio, location, occupation } = req.body;
+        
+        // Check if username or email is being changed, and if so, check if they're unique
+        if (username || email) {
+            const existingUser = await User.findOne({
+                $and: [
+                    { _id: { $ne: req.user.id } },
+                    { $or: [
+                        username ? { username } : { _id: null },
+                        email ? { email } : { _id: null }
+                    ]}
+                ]
+            });
+
+            if (existingUser) {
+                return res.status(400).json({
+                    success: false,
+                    error: existingUser.email === email 
+                        ? 'Email already in use' 
+                        : 'Username already taken'
+                });
+            }
+        }
+        
+        // Update user profile
+        const updateData = {};
+        if (username) updateData.username = username;
+        if (email) updateData.email = email;
+        if (bio !== undefined) updateData.bio = bio;
+        if (location !== undefined) updateData.location = location;
+        if (occupation !== undefined) updateData.occupation = occupation;
+        
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.id,
+            { $set: updateData },
+            { new: true }
+        ).select('-password -resetToken -resetTokenExpiry -verificationToken -verificationTokenExpiry');
+
+        res.json({
+            success: true,
+            message: 'Profile updated successfully',
+            user: updatedUser
+        });
+    } catch (err) {
+        console.error('Update profile error:', err);
+        res.status(500).json({
+            success: false,
+            error: 'Error updating user profile'
+        });
+    }
+});
+
+// Update user preferences
+router.put('/preferences', auth, async (req, res) => {
+    try {
+        const { emailNotifications, darkMode, notificationFrequency } = req.body.preferences || {};
+        
+        const updateData = { preferences: {} };
+        
+        if (emailNotifications !== undefined) updateData.preferences.emailNotifications = emailNotifications;
+        if (darkMode !== undefined) updateData.preferences.darkMode = darkMode;
+        if (notificationFrequency) updateData.preferences.notificationFrequency = notificationFrequency;
+        
+        const updatedUser = await User.findByIdAndUpdate(
+            req.user.id,
+            { $set: updateData },
+            { new: true }
+        ).select('-password -resetToken -resetTokenExpiry -verificationToken -verificationTokenExpiry');
+
+        res.json({
+            success: true,
+            message: 'Preferences updated successfully',
+            user: updatedUser
+        });
+    } catch (err) {
+        console.error('Update preferences error:', err);
+        res.status(500).json({
+            success: false,
+            error: 'Error updating user preferences'
+        });
+    }
+});
+
+// Change password
+router.put('/change-password', auth, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        
+        // Get user with password
+        const user = await User.findById(req.user.id).select('+password');
+        
+        // Check if current password is correct
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) {
+            return res.status(400).json({
+                success: false,
+                error: 'Current password is incorrect'
+            });
+        }
+        
+        // Update password
+        user.password = newPassword;
+        await user.save();
+        
+        res.json({
+            success: true,
+            message: 'Password changed successfully'
+        });
+    } catch (err) {
+        console.error('Change password error:', err);
+        res.status(500).json({
+            success: false,
+            error: 'Error changing password'
         });
     }
 });

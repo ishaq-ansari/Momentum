@@ -128,10 +128,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Check if user is already logged in
     if (token) {
         applyHomeCSS();
-        setTimeout(() => {
-            showHomeFeed();
-            fetchPosts();
-        }, 500);
+        
+        // Remove the setTimeout and immediately load the home feed and posts
+        await showHomeFeed();
     }
 });
 
@@ -193,7 +192,6 @@ async function handleLogin() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-
         const data = await response.json();
         
         if (data.token) {
@@ -212,8 +210,11 @@ async function handleLogin() {
             if (notificationClose) notificationClose.style.display = 'none';
             
             applyHomeCSS(); // Apply home.css
-            showHomeFeed(); // Show the home feed after login
-            await fetchPosts();
+            
+            // Make sure the home feed is displayed and posts are fetched immediately
+            await showHomeFeed(); // Use await to ensure the UI is ready
+            
+            // No need to call fetchPosts() separately since showHomeFeed already calls it
         } else {
             showNotification(data.error || 'Login failed', 'error');
         }
@@ -338,12 +339,28 @@ async function showHomeFeed() {
         const createPost = document.querySelector('.create-post');
         const searchContainer = document.querySelector('.search-container');
         
-        if (postsContainer) postsContainer.style.display = 'flex';
+        if (postsContainer) {
+            postsContainer.style.display = 'flex';
+            postsContainer.innerHTML = '<div class="loading-posts">Loading posts...</div>';
+        }
         if (createPost) createPost.style.display = 'flex';
         if (searchContainer) searchContainer.style.display = 'block';
+        
+        // Make the home nav item active
+        const homeNavItem = document.querySelector('.nav-item:first-child');
+        if (homeNavItem) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            homeNavItem.classList.add('active');
+        }
     }
     
-    await fetchPosts();
+    // Fetch and display posts
+    try {
+        await fetchPosts();
+    } catch (error) {
+        console.error('Error fetching posts in showHomeFeed:', error);
+    }
 }
 
 // Rest of show functions remain the same
@@ -417,6 +434,12 @@ if (chatBtn) {
     chatBtn.addEventListener('click', showChatSystem);
 }
 
+// Add event listener for profile button
+const profileBtn = document.getElementById('profile-btn');
+if (profileBtn) {
+    profileBtn.addEventListener('click', showProfile);
+}
+
 // Post and content functions with notification support
 async function createPost() {
     const postText = document.getElementById('post-text').value.trim();
@@ -446,13 +469,35 @@ async function createPost() {
 
 async function fetchPosts() {
     try {
+        console.log('Fetching posts with token:', token);
         const response = await fetch(`${API_URL}/posts`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+            method: 'GET',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
         });
+        console.log('Posts response status:', response.status);
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('Error response data:', errorData);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
         const posts = await response.json();
+        console.log('Posts fetched successfully:', posts);
         renderPosts(posts);
     } catch (error) {
+        console.error('Error fetching posts:', error);
         showNotification('Error fetching posts. Please try again.', 'error');
+        
+        // Show error message in posts container
+        const postsContainer = document.getElementById('posts-container');
+        if (postsContainer) {
+            postsContainer.innerHTML = '<div class="error-message">Could not load posts. Please try refreshing the page.</div>';
+        }
     }
 }
 

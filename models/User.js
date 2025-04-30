@@ -32,6 +32,34 @@ const UserSchema = new mongoose.Schema({
         enum: ['user', 'professional', 'admin'],
         default: 'user'
     },
+    // New profile fields
+    bio: {
+        type: String,
+        maxlength: [500, 'Bio cannot exceed 500 characters']
+    },
+    location: {
+        type: String,
+        maxlength: [100, 'Location cannot exceed 100 characters']
+    },
+    occupation: {
+        type: String,
+        maxlength: [100, 'Occupation cannot exceed 100 characters']
+    },
+    preferences: {
+        emailNotifications: {
+            type: Boolean,
+            default: true
+        },
+        darkMode: {
+            type: Boolean,
+            default: false
+        },
+        notificationFrequency: {
+            type: String,
+            enum: ['immediate', 'daily', 'weekly', 'none'],
+            default: 'immediate'
+        }
+    },
     isVerified: {
         type: Boolean,
         default: false
