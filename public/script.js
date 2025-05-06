@@ -147,6 +147,98 @@ document.addEventListener("DOMContentLoaded", async function() {
         // Remove the setTimeout and immediately load the home feed and posts
         await showHomeFeed();
     }
+
+    // Initialize mobile menu
+    initMobileMenu();
+});
+
+// Mobile menu functionality
+function initMobileMenu() {
+    const sidebar = document.querySelector('.sidebar');
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    
+    // If elements don't exist yet, create them
+    if (!menuToggle) {
+        // Create mobile menu toggle button
+        const toggle = document.createElement('button');
+        toggle.className = 'mobile-menu-toggle';
+        toggle.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+        document.body.appendChild(toggle);
+        
+        // Create overlay for closing the sidebar
+        const overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+        
+        // Toggle sidebar visibility
+        toggle.addEventListener('click', () => {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+        });
+        
+        // Close sidebar when clicking outside
+        overlay.addEventListener('click', () => {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        });
+    }
+    
+    // Close sidebar when clicking on menu items (on mobile)
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.nav-item') && window.innerWidth <= 768) {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            
+            if (sidebar && overlay) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+        }
+    });
+}
+
+// Add responsive resize handler
+window.addEventListener('resize', function() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+    
+    if (window.innerWidth > 768 && sidebar && overlay) {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+    }
+});
+
+// Call initMobileMenu when DOM is loaded
+document.addEventListener("DOMContentLoaded", function() {
+    // Setup login button handler
+    const loginBtn = document.getElementById("login-btn");
+    if (loginBtn) {
+        loginBtn.addEventListener("click", handleLogin);
+    }
+    
+    // Other existing event listeners...
+    
+    // Check if user is already logged in
+    if (token) {
+        applyHomeCSS();
+        // Remove the setTimeout and immediately load the home feed and posts
+        showHomeFeed().then(() => {
+            // Initialize mobile menu after the UI is set up
+            initMobileMenu();
+        });
+    } else {
+        // Setup auth-related events
+        setupAuthEvents();
+    }
+    
+    // Initialize mobile menu (will only take effect after login)
+    initMobileMenu();
 });
 
 function setupNavigationHandlers() {

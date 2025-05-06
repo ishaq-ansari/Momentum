@@ -2,6 +2,7 @@
 let socket;
 let currentChatRoomId;
 let chatInitialized = false;
+let isMobileView = window.innerWidth <= 768;
 
 // Main function to show chat interface
 async function showCustomChatSystem(peerId = null) {
@@ -42,6 +43,116 @@ async function showCustomChatSystem(peerId = null) {
     // If peerId is provided, create a chat with this peer
     if (peerId && socket) {
         socket.emit('createPeerChat', peerId);
+    }
+    
+    // Handle mobile view
+    handleResponsiveLayout();
+    
+    // Add window resize listener for responsive layout
+    window.addEventListener('resize', handleResponsiveLayout);
+}
+
+// Function to handle responsive layout changes
+function handleResponsiveLayout() {
+    const wasMobile = isMobileView;
+    isMobileView = window.innerWidth <= 768;
+    
+    // If mobile state changed, update UI accordingly
+    if (wasMobile !== isMobileView) {
+        updateUIForDeviceSize();
+    }
+}
+
+// Update UI elements based on device size
+function updateUIForDeviceSize() {
+    const contactsSection = document.querySelector('.contacts-section');
+    const chatArea = document.querySelector('.chat-area');
+    
+    if (!contactsSection || !chatArea) return;
+    
+    if (isMobileView) {
+        // On mobile: show/hide toggle button if not already present
+        if (!document.querySelector('.contacts-toggle')) {
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'contacts-toggle';
+            toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
+            toggleBtn.onclick = toggleContactsList;
+            
+            const chatRoomHeader = document.getElementById('chat-room-header');
+            if (chatRoomHeader) {
+                chatRoomHeader.prepend(toggleBtn);
+            }
+        }
+        
+        // Always start with contacts visible on mobile if no chat is selected
+        if (!currentChatRoomId) {
+            showContactsList();
+        } else {
+            hideContactsList();
+        }
+    } else {
+        // On desktop: ensure both sections are visible
+        contactsSection.style.display = 'flex';
+        chatArea.style.display = 'flex';
+        
+        // Remove toggle button if it exists
+        const toggleBtn = document.querySelector('.contacts-toggle');
+        if (toggleBtn) {
+            toggleBtn.remove();
+        }
+        
+        // Remove any back button
+        const backBtn = document.querySelector('.back-to-contacts');
+        if (backBtn) {
+            backBtn.remove();
+        }
+    }
+}
+
+// Toggle contacts list visibility on mobile
+function toggleContactsList() {
+    const contactsSection = document.querySelector('.contacts-section');
+    if (!contactsSection) return;
+    
+    if (contactsSection.style.display === 'none') {
+        showContactsList();
+    } else {
+        hideContactsList();
+    }
+}
+
+// Show contacts list on mobile
+function showContactsList() {
+    if (!isMobileView) return;
+    
+    const contactsSection = document.querySelector('.contacts-section');
+    const chatArea = document.querySelector('.chat-area');
+    
+    if (contactsSection) contactsSection.style.display = 'flex';
+    if (chatArea) chatArea.style.display = 'none';
+}
+
+// Hide contacts list on mobile
+function hideContactsList() {
+    if (!isMobileView) return;
+    
+    const contactsSection = document.querySelector('.contacts-section');
+    const chatArea = document.querySelector('.chat-area');
+    
+    if (contactsSection) contactsSection.style.display = 'none';
+    if (chatArea) chatArea.style.display = 'flex';
+    
+    // Add back button if not already present
+    if (!document.querySelector('.back-to-contacts')) {
+        const backBtn = document.createElement('button');
+        backBtn.className = 'back-to-contacts';
+        backBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="M12 19l-7-7 7-7"></path></svg> Contacts';
+        backBtn.onclick = showContactsList;
+        
+        const chatRoomHeader = document.getElementById('chat-room-header');
+        if (chatRoomHeader) {
+            chatRoomHeader.prepend(backBtn);
+        }
     }
 }
 
@@ -308,10 +419,11 @@ function addChatStyles() {
             font-size: 14px;
             line-height: 1.4;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            word-break: break-word;
         }
         
         .message.sent .message-bubble {
-            background: #1e88e5; /* Similar to second screenshot */
+            background: #1e88e5;
             color: white;
             border-bottom-right-radius: 4px;
         }
@@ -439,6 +551,83 @@ function addChatStyles() {
             animation: fadeIn 0.3s ease;
         }
         
+        /* Mobile responsive styles */
+        .contacts-toggle, .back-to-contacts {
+            display: none;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: #8a4fff;
+            padding: 5px;
+            margin-right: 10px;
+            line-height: 1;
+        }
+        
+        .back-to-contacts {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-container {
+                flex-direction: column;
+                height: calc(100vh - 60px);
+                margin: 10px;
+                position: relative;
+            }
+            
+            .contacts-section {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 2;
+            }
+            
+            .chat-area {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 1;
+                height: 100%;
+            }
+            
+            .contacts-toggle, .back-to-contacts {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .chat-messages {
+                padding: 15px;
+            }
+            
+            .chat-input-area {
+                padding: 10px 15px;
+                min-height: 60px;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+            
+            #chat-input {
+                padding: 10px 12px;
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+            
+            .send-btn {
+                padding: 10px 20px;
+            }
+        }
+        
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -447,30 +636,6 @@ function addChatStyles() {
             to {
                 opacity: 1;
                 transform: translateY(0);
-            }
-        }
-        
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .chat-container {
-                flex-direction: column;
-                height: calc(100vh - 60px);
-                margin: 10px;
-            }
-            
-            .contacts-section {
-                width: 100%;
-                height: 250px;
-                border-right: none;
-                border-bottom: 1px solid #eee;
-            }
-            
-            .chat-area {
-                height: calc(100vh - 310px);
-            }
-            
-            .message {
-                max-width: 85%;
             }
         }
     `;
@@ -701,6 +866,11 @@ function selectChatRoom(roomId, roomName) {
     
     // Load messages for this room
     loadChatRoomMessages(roomId);
+    
+    // On mobile, hide contacts and show chat
+    if (isMobileView) {
+        hideContactsList();
+    }
 }
 
 // Load messages for a chat room

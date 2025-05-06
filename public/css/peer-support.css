@@ -8,6 +8,12 @@
     margin-bottom: 0.5rem;
 }
 
+@media (max-width: 768px) {
+    .section-header h2 {
+        font-size: 1.5rem;
+    }
+}
+
 .section-header p {
     color: #666;
     font-size: 1rem;
@@ -21,9 +27,28 @@
     align-items: center;
 }
 
+@media (max-width: 768px) {
+    .filter-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
 .filter-options {
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+    .filter-options {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .filter-options select {
+        width: 100%;
+    }
 }
 
 .filter-select {
@@ -44,17 +69,44 @@
     margin-bottom: 2rem;
 }
 
+@media (max-width: 768px) {
+    .peers-grid, .groups-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .peers-grid, .groups-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .peer-card, .group-card {
     background-color: white;
     border-radius: 0.5rem;
     border: 1px solid rgb(229, 231, 235);
     padding: 1.5rem;
     transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 768px) {
+    .peer-card, .group-card {
+        padding: 1rem;
+    }
 }
 
 .peer-card:hover, .group-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .peer-card:hover, .group-card:hover {
+        transform: translateY(-3px); /* Less dramatic on mobile */
+    }
 }
 
 .peer-avatar {
@@ -110,6 +162,13 @@
     cursor: pointer;
     width: 100%;
     transition: background-color 0.2s;
+    margin-top: auto; /* Push button to bottom of flex container */
+}
+
+@media (max-width: 768px) {
+    .connect-btn {
+        padding: 0.7rem 1rem; /* Larger touch target on mobile */
+    }
 }
 
 .connect-btn:hover {
@@ -127,6 +186,12 @@
     margin-bottom: 0.5rem;
 }
 
+@media (max-width: 768px) {
+    .support-groups-section h3, .become-peer-section h3 {
+        font-size: 1.3rem;
+    }
+}
+
 .support-groups-section p, .become-peer-section p {
     color: #666;
     margin-bottom: 1.5rem;
@@ -138,6 +203,12 @@
     border-radius: 0.5rem;
     padding: 2rem;
     text-align: center;
+}
+
+@media (max-width: 768px) {
+    .become-peer-card {
+        padding: 1.5rem;
+    }
 }
 
 .become-peer-card h3 {
@@ -153,6 +224,13 @@
     font-size: 0.9rem;
     cursor: pointer;
     transition: background-color 0.2s;
+}
+
+@media (max-width: 768px) {
+    .primary-btn {
+        padding: 0.7rem 1.5rem; /* Larger touch target on mobile */
+        width: 100%; /* Full width on mobile */
+    }
 }
 
 .primary-btn:hover {
@@ -183,6 +261,14 @@
     position: relative;
 }
 
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 1.5rem;
+        width: 95%;
+        max-height: 85vh;
+    }
+}
+
 .close-btn {
     position: absolute;
     top: 1rem;
@@ -190,6 +276,14 @@
     font-size: 1.5rem;
     color: #666;
     cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .close-btn {
+        top: 0.7rem;
+        right: 0.7rem;
+        font-size: 1.7rem; /* Larger touch target */
+    }
 }
 
 .form-group {
@@ -209,6 +303,13 @@
     border-radius: 0.25rem;
 }
 
+@media (max-width: 768px) {
+    .form-group textarea, .form-group select {
+        padding: 0.9rem;
+        font-size: 16px; /* Prevent iOS zoom on input */
+    }
+}
+
 .form-group textarea:focus, .form-group select:focus {
     border-color: #8a4fff;
     outline: none;
@@ -220,9 +321,76 @@
     gap: 0.5rem;
 }
 
+@media (max-width: 768px) {
+    .checkbox-group {
+        gap: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .checkbox-group {
+        grid-template-columns: 1fr; /* Single column for very small screens */
+    }
+}
+
 .checkbox-group label {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-weight: normal;
+}
+
+@media (max-width: 768px) {
+    .checkbox-group label {
+        padding: 0.3rem 0; /* More clickable area */
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+/* Add new responsive components */
+.no-peers-message {
+    text-align: center;
+    padding: 2rem;
+    background-color: #f9f9f9;
+    border-radius: 0.5rem;
+    color: #666;
+}
+
+#peers-container, #groups-container {
+    width: 100%;
+}
+
+/* Responsive chat elements for peer support */
+.chat-preview {
+    background: #f5f0ff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .chat-preview {
+        padding: 0.8rem;
+    }
+}
+
+/* Back button for mobile */
+.back-btn {
+    display: none;
+    padding: 0.5rem 1rem;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .back-btn {
+        display: inline-block;
+    }
 }
