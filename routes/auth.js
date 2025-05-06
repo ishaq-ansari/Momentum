@@ -5,7 +5,6 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const nodemailer = require('nodemailer');
 const { sendEmail } = require('../utils/email');
 const config = require('../config/config');
 const { validateRegistration, validateLogin } = require('../middleware/validation');
@@ -14,7 +13,7 @@ const auth = require('../middleware/auth');
 
 router.post('/register', validateRegistration, async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password, userType } = req.body;
 
         // Check if user exists
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
@@ -29,13 +28,13 @@ router.post('/register', validateRegistration, async (req, res) => {
         const user = new User({
             username,
             email,
-            password
+            password,
+            userType
         });
 
         // Generate verification token
         const verificationToken = user.generateVerificationToken();
         await user.save();
-
         // Send verification email
         const verificationUrl = `${req.headers.origin}/verify-email/${verificationToken}`;
         await sendEmail({
@@ -59,14 +58,14 @@ router.post('/register', validateRegistration, async (req, res) => {
 
 router.post('/login', validateLogin, async (req, res) => {
     try {
-        console.log('Login attempt with data:', { 
+        console.log('Login attempt with data:', {
             email: req.body.email,
             username: req.body.username,
-            hasPassword: !!req.body.password 
+            hasPassword: !!req.body.password
         });
-        
+
         const { email, username, password } = req.body;
-        
+
         // Find user by email or username and include password field
         let user;
         if (email) {
@@ -90,7 +89,7 @@ router.post('/login', validateLogin, async (req, res) => {
                 error: 'Invalid credentials'
             });
         }
-        
+
         console.log('User found:', { userId: user._id, username: user.username });
 
         // Check password
@@ -102,7 +101,7 @@ router.post('/login', validateLogin, async (req, res) => {
                 error: 'Invalid credentials'
             });
         }
-        
+
         console.log('Password matched successfully');
 
         // TEMPORARILY DISABLED EMAIL VERIFICATION CHECK
@@ -113,7 +112,7 @@ router.post('/login', validateLogin, async (req, res) => {
         //         error: 'Please verify your email before logging in'
         //     });
         // }
-        
+
         console.log('Proceeding with login (verification check disabled for testing)');
 
         // Update last login
@@ -126,7 +125,7 @@ router.post('/login', validateLogin, async (req, res) => {
             config.JWT_SECRET,
             { expiresIn: config.JWT_EXPIRES_IN }
         );
-        
+
         console.log('Login successful, token generated');
 
         res.json({
@@ -268,7 +267,7 @@ router.post('/reset-password/:token', async (req, res) => {
 router.get('/me', auth, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password -resetToken -resetTokenExpiry -verificationToken -verificationTokenExpiry');
-        
+
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -293,29 +292,31 @@ router.get('/me', auth, async (req, res) => {
 router.put('/profile', auth, async (req, res) => {
     try {
         const { username, email, bio, location, occupation } = req.body;
-        
+
         // Check if username or email is being changed, and if so, check if they're unique
         if (username || email) {
             const existingUser = await User.findOne({
                 $and: [
                     { _id: { $ne: req.user.id } },
-                    { $or: [
-                        username ? { username } : { _id: null },
-                        email ? { email } : { _id: null }
-                    ]}
+                    {
+                        $or: [
+                            username ? { username } : { _id: null },
+                            email ? { email } : { _id: null }
+                        ]
+                    }
                 ]
             });
 
             if (existingUser) {
                 return res.status(400).json({
                     success: false,
-                    error: existingUser.email === email 
-                        ? 'Email already in use' 
+                    error: existingUser.email === email
+                        ? 'Email already in use'
                         : 'Username already taken'
                 });
             }
         }
-        
+
         // Update user profile
         const updateData = {};
         if (username) updateData.username = username;
@@ -323,7 +324,7 @@ router.put('/profile', auth, async (req, res) => {
         if (bio !== undefined) updateData.bio = bio;
         if (location !== undefined) updateData.location = location;
         if (occupation !== undefined) updateData.occupation = occupation;
-        
+
         const updatedUser = await User.findByIdAndUpdate(
             req.user.id,
             { $set: updateData },
@@ -348,13 +349,13 @@ router.put('/profile', auth, async (req, res) => {
 router.put('/preferences', auth, async (req, res) => {
     try {
         const { emailNotifications, darkMode, notificationFrequency } = req.body.preferences || {};
-        
+
         const updateData = { preferences: {} };
-        
+
         if (emailNotifications !== undefined) updateData.preferences.emailNotifications = emailNotifications;
         if (darkMode !== undefined) updateData.preferences.darkMode = darkMode;
         if (notificationFrequency) updateData.preferences.notificationFrequency = notificationFrequency;
-        
+
         const updatedUser = await User.findByIdAndUpdate(
             req.user.id,
             { $set: updateData },
@@ -379,10 +380,10 @@ router.put('/preferences', auth, async (req, res) => {
 router.put('/change-password', auth, async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
-        
+
         // Get user with password
         const user = await User.findById(req.user.id).select('+password');
-        
+
         // Check if current password is correct
         const isMatch = await user.comparePassword(currentPassword);
         if (!isMatch) {
@@ -391,11 +392,11 @@ router.put('/change-password', auth, async (req, res) => {
                 error: 'Current password is incorrect'
             });
         }
-        
+
         // Update password
         user.password = newPassword;
         await user.save();
-        
+
         res.json({
             success: true,
             message: 'Password changed successfully'

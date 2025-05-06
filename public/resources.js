@@ -4,13 +4,13 @@
 async function showResources() {
     // Load resources content into the main content area
     const mainContentArea = document.getElementById('main-content');
-    
+
     if (mainContentArea) {
         // First hide all content
         Array.from(mainContentArea.children).forEach(child => {
             child.style.display = 'none';
         });
-        
+
         // Check if resources content exists, if not load it from template
         let resourcesContent = document.getElementById('resources-section');
         if (!resourcesContent) {
@@ -18,39 +18,39 @@ async function showResources() {
             try {
                 const response = await fetch('templates/resources.html');
                 const templateHTML = await response.text();
-                
+
                 // Create a container and insert the template HTML
                 const tempContainer = document.createElement('div');
                 tempContainer.innerHTML = templateHTML;
-                
+
                 // Append the template content to main content area
                 while (tempContainer.firstChild) {
                     mainContentArea.appendChild(tempContainer.firstChild);
                 }
-                
+
                 // Add event listeners for the resources functionality
                 document.getElementById('country-filter').addEventListener('change', function(e) {
                     populateStatesDropdown(e.target.value);
                 });
-                
+
                 document.getElementById('resource-country').addEventListener('change', function(e) {
                     populateSubmissionStatesDropdown(e.target.value);
                 });
-                
+
                 document.getElementById('resource-search-input').addEventListener('input', filterResources);
                 document.getElementById('state-filter').addEventListener('change', filterResources);
                 document.getElementById('resource-type-filter').addEventListener('change', filterResources);
-                
+
                 document.getElementById('use-my-location').addEventListener('click', getUserLocation);
-                
+
                 document.getElementById('resource-submission-form-element').addEventListener('submit', function(e) {
                     e.preventDefault();
                     submitResourceForm();
                 });
-                
+
                 // Initialize the resources map
                 initializeResourcesMap();
-                
+
                 // Load sample resources data (in a real app, this would fetch from an API)
                 loadResourcesData();
             } catch (error) {
@@ -61,7 +61,7 @@ async function showResources() {
             // Template is already loaded, just display it
             resourcesContent.style.display = 'block';
         }
-        
+
         // Load the resources CSS if it's not already loaded
         if (!document.querySelector('link[href="css/resources.css"]')) {
             const linkElem = document.createElement('link');
@@ -80,11 +80,11 @@ function populateStatesDropdown(country) {
     const statesDropdown = document.getElementById('state-filter');
     statesDropdown.innerHTML = '<option value="">Select State/Province</option>';
     statesDropdown.disabled = true;
-    
+
     if (country) {
         // Get states based on country
         const states = getStatesByCountry(country);
-        
+
         if (states && states.length > 0) {
             states.forEach(state => {
                 const option = document.createElement('option');
@@ -95,7 +95,7 @@ function populateStatesDropdown(country) {
             statesDropdown.disabled = false;
         }
     }
-    
+
     // Trigger resource filtering
     filterResources();
 }
@@ -105,11 +105,11 @@ function populateSubmissionStatesDropdown(country) {
     const statesDropdown = document.getElementById('resource-state');
     statesDropdown.innerHTML = '<option value="">Select State/Province</option>';
     statesDropdown.disabled = true;
-    
+
     if (country) {
         // Get states based on country
         const states = getStatesByCountry(country);
-        
+
         if (states && states.length > 0) {
             states.forEach(state => {
                 const option = document.createElement('option');
@@ -156,7 +156,7 @@ function getStatesByCountry(country) {
             // Add more Australian states...
         ]
     };
-    
+
     return statesByCountry[country] || [];
 }
 
@@ -165,7 +165,7 @@ function initializeResourcesMap() {
     // In a real application, this would initialize a map service like Google Maps or Leaflet
     // For now, we'll just display a placeholder
     console.log('Map would be initialized here with API integration');
-    
+
     // Simulate map loading delay
     setTimeout(() => {
         const mapContainer = document.getElementById('resources-map');
@@ -188,7 +188,7 @@ function getUserLocation() {
         <div class="spinner" style="width: 16px; height: 16px;"></div>
         Getting location...
     `;
-    
+
     // In a real application, this would use the browser's Geolocation API
     // For demo purposes, we'll simulate a location fetch
     setTimeout(() => {
@@ -198,7 +198,7 @@ function getUserLocation() {
             longitude: -122.4194,
             address: 'San Francisco, CA'
         };
-        
+
         // Update the UI to show we're using the location
         locationButton.disabled = false;
         locationButton.innerHTML = `
@@ -208,11 +208,11 @@ function getUserLocation() {
             </svg>
             Using: ${userLocation.address}
         `;
-        
+
         // In a real app, you would update the map to center on this location
         // and sort resources by proximity to this location
         loadResourcesByLocation(userLocation);
-        
+
         // Show a notification
         showNotification('Using your current location to find nearby resources.', 'success');
     }, 1500);
@@ -224,7 +224,7 @@ function loadResourcesData() {
     // For now, let's simulate an API call with sample data
     const resourcesContainer = document.getElementById('resources-container');
     const resultsCount = document.querySelector('.results-count');
-    
+
     if (resourcesContainer) {
         // Show loading spinner
         resourcesContainer.innerHTML = `
@@ -233,18 +233,18 @@ function loadResourcesData() {
             </div>
         `;
         resultsCount.textContent = 'Loading resources...';
-        
+
         // Simulate API delay
         setTimeout(() => {
             // Get sample data
             const resources = getSampleResources();
-            
+
             // Update results count
             resultsCount.textContent = `${resources.length} resources found`;
-            
+
             // Display the resources
             displayResources(resources);
-            
+
             // Initialize the map with these locations
             // In a real app, you would pass these locations to your map API
         }, 1500);
@@ -257,7 +257,7 @@ function loadResourcesByLocation(location) {
     // For now, let's simulate an API call with sample data
     const resourcesContainer = document.getElementById('resources-container');
     const resultsCount = document.querySelector('.results-count');
-    
+
     if (resourcesContainer) {
         // Show loading spinner
         resourcesContainer.innerHTML = `
@@ -266,12 +266,12 @@ function loadResourcesByLocation(location) {
             </div>
         `;
         resultsCount.textContent = 'Finding resources near you...';
-        
+
         // Simulate API delay
         setTimeout(() => {
             // Get sample data
             const resources = getSampleResources();
-            
+
             // Sort resources by distance from user location
             // In a real app, this would calculate actual distances
             resources.forEach(resource => {
@@ -279,20 +279,20 @@ function loadResourcesByLocation(location) {
                 const distance = Math.random() * 20;
                 resource.distance = parseFloat(distance.toFixed(1));
             });
-            
+
             // Sort by distance
             resources.sort((a, b) => a.distance - b.distance);
-            
+
             // Update results count
             resultsCount.textContent = `${resources.length} resources found near you`;
-            
+
             // Display the resources
             displayResources(resources);
-            
+
             // Update map to center on user location
             // In a real app, you would update your map API
             updateMapWithUserLocation(location);
-            
+
             // Show a success notification
             showNotification('Resources sorted by distance from your location.', 'success');
         }, 1500);
@@ -302,7 +302,7 @@ function loadResourcesByLocation(location) {
 // Function to display resources in the container
 function displayResources(resources) {
     const resourcesContainer = document.getElementById('resources-container');
-    
+
     if (resourcesContainer) {
         if (resources.length === 0) {
             resourcesContainer.innerHTML = `
@@ -313,28 +313,28 @@ function displayResources(resources) {
             `;
             return;
         }
-        
+
         // Clear the container
         resourcesContainer.innerHTML = '';
-        
+
         // Add each resource as a card
         resources.forEach(resource => {
             const card = document.createElement('div');
             card.className = 'resource-card';
             card.dataset.id = resource.id;
-            
+
             // Determine tag class based on resource type
             const tagClass = `${resource.type}-tag`;
-            
+
             // Format type label for display
             const typeLabel = formatTypeLabel(resource.type);
-            
+
             // Create card HTML
             card.innerHTML = `
                 <div class="resource-type-tag ${tagClass}">${typeLabel}</div>
                 <h3 class="resource-name">${resource.name}</h3>
                 <p class="resource-description">${resource.description}</p>
-                
+
                 ${resource.distance ? `<div class="resource-distance">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a4fff" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
@@ -342,7 +342,7 @@ function displayResources(resources) {
                     </svg>
                     ${resource.distance} miles away
                 </div>` : ''}
-                
+
                 <div class="resource-address">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
                         <path d="M12 2 C8 2 4 5 4 10 C4 15 12 22 12 22 C12 22 20 15 20 10 C20 5 16 2 12 2 Z"></path>
@@ -350,14 +350,14 @@ function displayResources(resources) {
                     </svg>
                     <span>${resource.address}, ${resource.city}, ${resource.state} ${resource.zip}</span>
                 </div>
-                
+
                 ${resource.phone ? `<div class="resource-phone">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                     </svg>
                     <a href="tel:${resource.phone}">${formatPhoneNumber(resource.phone)}</a>
                 </div>` : ''}
-                
+
                 ${resource.website ? `<div class="resource-website">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
@@ -366,13 +366,13 @@ function displayResources(resources) {
                     </svg>
                     <a href="${resource.website}" target="_blank" rel="noopener">Visit Website</a>
                 </div>` : ''}
-                
+
                 <div class="resource-actions">
                     <button class="view-on-map-btn" onclick="viewResourceOnMap('${resource.id}')">View on Map</button>
                     <button class="get-directions-btn" onclick="getDirectionsToResource('${resource.id}')">Get Directions</button>
                 </div>
             `;
-            
+
             resourcesContainer.appendChild(card);
         });
     }
@@ -387,7 +387,7 @@ function formatTypeLabel(type) {
         'inpatient': 'Inpatient Care',
         'community': 'Community Services'
     };
-    
+
     return typeLabels[type] || type;
 }
 
@@ -408,10 +408,10 @@ function filterResources() {
     const countryFilter = document.getElementById('country-filter').value;
     const stateFilter = document.getElementById('state-filter').value;
     const typeFilter = document.getElementById('resource-type-filter').value;
-    
+
     const resourcesContainer = document.getElementById('resources-container');
     const resultsCount = document.querySelector('.results-count');
-    
+
     if (resourcesContainer) {
         // Show loading spinner
         resourcesContainer.innerHTML = `
@@ -420,37 +420,37 @@ function filterResources() {
             </div>
         `;
         resultsCount.textContent = 'Filtering resources...';
-        
+
         // Simulate API delay
         setTimeout(() => {
             // Get sample data
             let resources = getSampleResources();
-            
+
             // Apply filters
             if (countryFilter) {
                 resources = resources.filter(resource => resource.country === countryFilter);
             }
-            
+
             if (stateFilter) {
                 resources = resources.filter(resource => resource.state.toLowerCase() === stateFilter);
             }
-            
+
             if (typeFilter) {
                 resources = resources.filter(resource => resource.type === typeFilter);
             }
-            
+
             if (searchInput) {
-                resources = resources.filter(resource => 
+                resources = resources.filter(resource =>
                     resource.name.toLowerCase().includes(searchInput) ||
                     resource.description.toLowerCase().includes(searchInput) ||
                     resource.address.toLowerCase().includes(searchInput) ||
                     resource.city.toLowerCase().includes(searchInput)
                 );
             }
-            
+
             // Update results count
             resultsCount.textContent = `${resources.length} resources found`;
-            
+
             // Display the resources
             displayResources(resources);
         }, 500);
@@ -461,7 +461,7 @@ function filterResources() {
 function updateMapWithUserLocation(location) {
     // In a real app, this would use a map API to center on the user's location
     console.log(`Map would center on lat: ${location.latitude}, lng: ${location.longitude}`);
-    
+
     // Update the map placeholder for demo purposes
     const mapContainer = document.getElementById('resources-map');
     if (mapContainer) {
@@ -478,18 +478,18 @@ function updateMapWithUserLocation(location) {
 function viewResourceOnMap(resourceId) {
     // In a real app, this would pan and zoom the map to the resource
     console.log(`Showing resource ${resourceId} on map`);
-    
+
     // Get the resource data
     const resources = getSampleResources();
     const resource = resources.find(r => r.id === resourceId);
-    
+
     if (resource) {
         // Show a notification
         showNotification(`Showing ${resource.name} on map`, 'info');
-        
+
         // Scroll to map
         document.getElementById('resources-map').scrollIntoView({ behavior: 'smooth' });
-        
+
         // Update map placeholder for demo
         const mapContainer = document.getElementById('resources-map');
         if (mapContainer) {
@@ -509,15 +509,15 @@ function getDirectionsToResource(resourceId) {
     // In a real app, this would open a maps application or provide directions
     const resources = getSampleResources();
     const resource = resources.find(r => r.id === resourceId);
-    
+
     if (resource) {
         // Create a maps URL (Google Maps in this example)
         const address = encodeURIComponent(`${resource.address}, ${resource.city}, ${resource.state} ${resource.zip}`);
         const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${address}`;
-        
+
         // Open in a new tab
         window.open(mapsUrl, '_blank');
-        
+
         // Show a notification
         showNotification(`Opening directions to ${resource.name}`, 'success');
     }
@@ -528,7 +528,7 @@ function showResourceSubmissionForm() {
     const modal = document.getElementById('resource-submission-form');
     if (modal) {
         modal.style.display = 'flex';
-        
+
         // Add event listener to close when clicking outside
         modal.addEventListener('click', function(e) {
             if (e.target === modal) {
@@ -558,7 +558,7 @@ function submitResourceForm() {
     const phone = document.getElementById('resource-phone').value;
     const website = document.getElementById('resource-website').value;
     const email = document.getElementById('submitter-email').value;
-    
+
     // In a real app, this would send the data to an API
     console.log('Submitting resource:', {
         name,
@@ -571,13 +571,13 @@ function submitResourceForm() {
         website,
         submitterEmail: email
     });
-    
+
     // Show a success notification
     showNotification('Thank you! Your resource submission is being reviewed.', 'success');
-    
+
     // Clear the form
     document.getElementById('resource-submission-form-element').reset();
-    
+
     // Close the modal
     hideResourceSubmissionForm();
 }
@@ -597,7 +597,7 @@ function showNotification(message, type = 'info') {
         `;
         document.body.appendChild(notificationContainer);
     }
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification ${type}-notification`;
@@ -618,7 +618,7 @@ function showNotification(message, type = 'info') {
         transform: translateX(20px);
         transition: opacity 0.3s, transform 0.3s;
     `;
-    
+
     // Add type-specific styling
     if (type === 'success') {
         notification.style.borderLeft = '4px solid #4CAF50';
@@ -629,7 +629,7 @@ function showNotification(message, type = 'info') {
     } else {
         notification.style.borderLeft = '4px solid #2196F3';
     }
-    
+
     // Style notification content
     const content = notification.querySelector('.notification-content');
     content.style.cssText = `
@@ -638,7 +638,7 @@ function showNotification(message, type = 'info') {
         align-items: center;
         justify-content: space-between;
     `;
-    
+
     // Style close button
     const closeBtn = notification.querySelector('.notification-close');
     closeBtn.style.cssText = `
@@ -649,21 +649,21 @@ function showNotification(message, type = 'info') {
         font-size: 20px;
         line-height: 1;
     `;
-    
+
     // Add notification to container
     notificationContainer.appendChild(notification);
-    
+
     // Show notification with animation
     setTimeout(() => {
         notification.style.opacity = '1';
         notification.style.transform = 'translateX(0)';
     }, 10);
-    
+
     // Add event listener to close button
     closeBtn.addEventListener('click', () => {
         closeNotification(notification);
     });
-    
+
     // Auto close after 5 seconds
     setTimeout(() => {
         closeNotification(notification);
@@ -674,7 +674,7 @@ function showNotification(message, type = 'info') {
 function closeNotification(notification) {
     notification.style.opacity = '0';
     notification.style.transform = 'translateX(20px)';
-    
+
     setTimeout(() => {
         if (notification.parentElement) {
             notification.parentElement.removeChild(notification);

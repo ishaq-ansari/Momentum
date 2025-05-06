@@ -2,6 +2,7 @@
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+
 const crypto = require('crypto');
 
 const UserSchema = new mongoose.Schema({
@@ -66,7 +67,11 @@ const UserSchema = new mongoose.Schema({
     },
     resetToken: String,
     resetTokenExpiry: Date,
+
     verificationToken: String,
+
+    userType: String,
+
     verificationTokenExpiry: Date,
     lastLogin: Date,
     createdAt: {

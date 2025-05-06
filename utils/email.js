@@ -1,25 +1,25 @@
-const nodemailer = require('nodemailer');
-const config = require('../config/config');
+// const nodemailer = require('nodemailer');
+// const config = require('../config/config');
 
 // Create reusable transporter
-const transporter = nodemailer.createTransport({
-    host: config.SMTP_HOST,
-    port: config.SMTP_PORT,
-    secure: config.SMTP_PORT === 465,
-    auth: {
-        user: config.SMTP_USER,
-        pass: config.SMTP_PASS
-    }
-});
+// const transporter = nodemailer.createTransport({
+//     host: config.SMTP_HOST,
+//     port: config.SMTP_PORT,
+//     secure: config.SMTP_PORT === 465,
+//     auth: {
+//         user: config.SMTP_USER,
+//         pass: config.SMTP_PASS
+//     }
+// });
 
 // Verify transporter configuration
-transporter.verify((error, success) => {
-    if (error) {
-        console.error('SMTP configuration error:', error);
-    } else {
-        console.log('SMTP server is ready to send emails');
-    }
-});
+// transporter.verify((error, success) => {
+//     if (error) {
+//         console.error('SMTP configuration error:', error);
+//     } else {
+//         console.log('SMTP server is ready to send emails');
+//     }
+// });
 
 // Email templates
 const templates = {
@@ -47,30 +47,31 @@ const templates = {
 
 // Send email function
 const sendEmail = async ({ to, subject, text, html, template, templateData }) => {
-    try {
-        let emailContent = { to, subject, text, html };
+    // try {
+    //     let emailContent = { to, subject, text, html };
 
-        // Use template if specified
-        if (template && templates[template]) {
-            const templateContent = templates[template](templateData);
-            emailContent = {
-                ...emailContent,
-                subject: templateContent.subject,
-                html: templateContent.html
-            };
-        }
+    //     // Use template if specified
+    //     if (template && templates[template]) {
+    //         const templateContent = templates[template](templateData);
+    //         emailContent = {
+    //             ...emailContent,
+    //             subject: templateContent.subject,
+    //             html: templateContent.html
+    //         };
+    //     }
 
-        // Send email
-        const info = await transporter.sendMail(emailContent);
-        console.log('Email sent:', info.messageId);
-        return info;
-    } catch (error) {
-        console.error('Error sending email:', error);
-        throw new Error('Failed to send email');
-    }
+    //     // Send email
+    //     // const info = await transporter.sendMail(emailContent);
+    //     console.log('Email sent:', info.messageId);
+    //     return info;
+    // } catch (error) {
+    //     console.error('Error sending email:', error);
+    //     throw new Error('Failed to send email');
+    // }
 };
 
 module.exports = {
-    sendEmail,
-    templates
-}; 
+    sendEmail
+}
+
+
