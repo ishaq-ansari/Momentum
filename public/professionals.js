@@ -1,3 +1,6 @@
+// Professionals functionality
+
+// Main function to show professionals content
 async function showProfessionals() {
     // Instead of redirecting, load professionals content into the main content area
     const mainContentArea = document.getElementById('main-content');
@@ -8,357 +11,58 @@ async function showProfessionals() {
             child.style.display = 'none';
         });
         
-        // Check if professionals content exists, if not create it
+        // Check if professionals content exists, if not load it from template
         let professionalsContent = document.getElementById('professionals-section');
         if (!professionalsContent) {
-            professionalsContent = document.createElement('div');
-            professionalsContent.id = 'professionals-section';
-            professionalsContent.innerHTML = `
-                <div class="section-header">
-                    <h2>Mental Health Professionals</h2>
-                    <p>Connect with licensed professionals for personalized support.</p>
-                </div>
+            // Load the template HTML
+            try {
+                const response = await fetch('templates/professionals.html');
+                const templateHTML = await response.text();
                 
-                <div class="filter-container">
-                    <div class="search-box">
-                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                        <input type="text" placeholder="Search by name or specialty..." class="search-input" id="professional-search-input">
-                    </div>
-                    <div class="filter-options">
-                        <select id="specialty-filter" class="filter-select">
-                            <option value="">All Specialties</option>
-                            <option value="psychiatrist">Psychiatrist</option>
-                            <option value="psychologist">Psychologist</option>
-                            <option value="therapist">Therapist</option>
-                            <option value="counselor">Counselor</option>
-                            <option value="social-worker">Social Worker</option>
-                        </select>
-                        <select id="availability-filter" class="filter-select">
-                            <option value="">Any Availability</option>
-                            <option value="today">Today</option>
-                            <option value="this-week">This Week</option>
-                            <option value="next-week">Next Week</option>
-                        </select>
-                        <select id="session-type-filter" class="filter-select">
-                            <option value="">Any Session Type</option>
-                            <option value="video">Video Call</option>
-                            <option value="phone">Phone Call</option>
-                            <option value="in-person">In Person</option>
-                        </select>
-                    </div>
-                </div>
+                // Create a container and insert the template HTML
+                const tempContainer = document.createElement('div');
+                tempContainer.innerHTML = templateHTML;
                 
-                <div class="professionals-grid" id="professionals-container">
-                    <!-- Professional cards will be loaded here -->
-                </div>
-                
-                <div id="appointment-modal" class="modal" style="display: none;">
-                    <div class="modal-content">
-                        <span class="close-btn" onclick="hideAppointmentModal()">&times;</span>
-                        <div id="appointment-form-content">
-                            <!-- Appointment form will be loaded here -->
-                        </div>
-                    </div>
-                </div>
-            `;
-            mainContentArea.appendChild(professionalsContent);
-            
-            // Add styles for the professionals section
-            const styleSheet = document.createElement("style");
-            styleSheet.textContent = `
-                .professionals-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                    gap: 1.5rem;
-                    margin-bottom: 2rem;
+                // Append the template content to main content area
+                while (tempContainer.firstChild) {
+                    mainContentArea.appendChild(tempContainer.firstChild);
                 }
                 
-                .professional-card {
-                    background-color: white;
-                    border-radius: 0.5rem;
-                    border: 1px solid rgb(229, 231, 235);
-                    padding: 1.5rem;
-                    transition: transform 0.2s, box-shadow 0.2s;
-                    display: flex;
-                    flex-direction: column;
-                }
+                // Add event handlers for the professionals page
+                document.getElementById('professional-search-input').addEventListener('input', function(e) {
+                    filterProfessionals();
+                });
                 
-                .professional-card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-                }
+                document.getElementById('specialty-filter').addEventListener('change', function() {
+                    filterProfessionals();
+                });
                 
-                .professional-header {
-                    display: flex;
-                    align-items: center;
-                    margin-bottom: 1rem;
-                }
+                document.getElementById('availability-filter').addEventListener('change', function() {
+                    filterProfessionals();
+                });
                 
-                .professional-avatar {
-                    width: 64px;
-                    height: 64px;
-                    border-radius: 50%;
-                    background-color: #f0f0f0;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 1.5rem;
-                    color: #8a4fff;
-                    margin-right: 1rem;
-                }
+                document.getElementById('session-type-filter').addEventListener('change', function() {
+                    filterProfessionals();
+                });
                 
-                .professional-info {
-                    flex: 1;
-                }
-                
-                .professional-name {
-                    font-weight: 600;
-                    font-size: 1.1rem;
-                    margin-bottom: 0.25rem;
-                }
-                
-                .professional-title {
-                    color: #666;
-                    font-size: 0.9rem;
-                    margin-bottom: 0.25rem;
-                }
-                
-                .professional-rating {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.25rem;
-                    font-size: 0.9rem;
-                    color: #f59e0b;
-                }
-                
-                .professional-credentials {
-                    margin-top: 1rem;
-                    margin-bottom: 1rem;
-                    padding-top: 1rem;
-                    border-top: 1px solid #f0f0f0;
-                }
-                
-                .credential-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 0.5rem;
-                    margin-bottom: 0.5rem;
-                    color: #4b5563;
-                    font-size: 0.9rem;
-                }
-                
-                .credential-icon {
-                    width: 1rem;
-                    height: 1rem;
-                    color: #8a4fff;
-                }
-                
-                .professional-description {
-                    margin-bottom: 1rem;
-                    color: #4b5563;
-                    font-size: 0.9rem;
-                    flex-grow: 1;
-                }
-                
-                .professional-specialties {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 0.5rem;
-                    margin-bottom: 1rem;
-                }
-                
-                .specialty-tag {
-                    background-color: #f5f0ff;
-                    color: #8a4fff;
-                    padding: 0.25rem 0.75rem;
-                    border-radius: 9999px;
-                    font-size: 0.8rem;
-                }
-                
-                .professional-footer {
-                    margin-top: auto;
-                    padding-top: 1rem;
-                    border-top: 1px solid #f0f0f0;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-                
-                .session-info {
-                    font-size: 0.9rem;
-                    color: #4b5563;
-                }
-                
-                .session-price {
-                    font-weight: 600;
-                }
-                
-                .book-btn {
-                    background-color: #8a4fff;
-                    color: white;
-                    border: none;
-                    border-radius: 0.25rem;
-                    padding: 0.5rem 1rem;
-                    font-size: 0.9rem;
-                    cursor: pointer;
-                    transition: background-color 0.2s;
-                }
-                
-                .book-btn:hover {
-                    background-color: #7b45e0;
-                }
-                
-                /* Appointment modal styles */
-                .appointment-form {
-                    padding: 1rem 0;
-                }
-                
-                .appointment-form h3 {
-                    margin-bottom: 1.5rem;
-                    color: #8a4fff;
-                    font-size: 1.5rem;
-                }
-                
-                .form-row {
-                    display: flex;
-                    gap: 1rem;
-                    margin-bottom: 1rem;
-                }
-                
-                .form-group {
-                    flex: 1;
-                }
-                
-                .session-options {
-                    display: flex;
-                    gap: 1rem;
-                    margin-bottom: 1.5rem;
-                }
-                
-                .session-option {
-                    flex: 1;
-                    border: 1px solid #e0e0e0;
-                    border-radius: 0.5rem;
-                    padding: 1rem;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                    text-align: center;
-                }
-                
-                .session-option:hover {
-                    border-color: #8a4fff;
-                }
-                
-                .session-option.selected {
-                    border-color: #8a4fff;
-                    background-color: #f5f0ff;
-                }
-                
-                .session-option-icon {
-                    margin-bottom: 0.5rem;
-                    font-size: 1.5rem;
-                    color: #8a4fff;
-                }
-                
-                .time-slots {
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    gap: 0.5rem;
-                    margin-bottom: 1.5rem;
-                }
-                
-                .time-slot {
-                    padding: 0.5rem;
-                    border: 1px solid #e0e0e0;
-                    border-radius: 0.25rem;
-                    text-align: center;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-                
-                .time-slot:hover {
-                    border-color: #8a4fff;
-                }
-                
-                .time-slot.selected {
-                    border-color: #8a4fff;
-                    background-color: #f5f0ff;
-                }
-                
-                .confirm-booking-btn {
-                    background-color: #8a4fff;
-                    color: white;
-                    border: none;
-                    border-radius: 0.25rem;
-                    padding: 0.75rem 1.5rem;
-                    font-size: 1rem;
-                    cursor: pointer;
-                    width: 100%;
-                    transition: background-color 0.2s;
-                }
-                
-                .confirm-booking-btn:hover {
-                    background-color: #7b45e0;
-                }
-                
-                .payment-info {
-                    margin-top: 1.5rem;
-                    padding: 1rem;
-                    background-color: #f9fafb;
-                    border-radius: 0.5rem;
-                }
-                
-                .payment-title {
-                    font-size: 0.9rem;
-                    font-weight: 600;
-                    margin-bottom: 0.5rem;
-                }
-                
-                .payment-details {
-                    display: flex;
-                    justify-content: space-between;
-                    font-size: 0.9rem;
-                    margin-bottom: 0.5rem;
-                }
-                
-                .payment-total {
-                    display: flex;
-                    justify-content: space-between;
-                    font-size: 1rem;
-                    font-weight: 600;
-                    border-top: 1px solid #e0e0e0;
-                    padding-top: 0.5rem;
-                    margin-top: 0.5rem;
-                }
-            `;
-            document.head.appendChild(styleSheet);
-            
-            // Load sample professionals
-            loadSampleProfessionals();
-            
-            // Event handlers for the professional page
-            document.getElementById('professional-search-input').addEventListener('input', function(e) {
-                filterProfessionals();
-            });
-            
-            document.getElementById('specialty-filter').addEventListener('change', function() {
-                filterProfessionals();
-            });
-            
-            document.getElementById('availability-filter').addEventListener('change', function() {
-                filterProfessionals();
-            });
-            
-            document.getElementById('session-type-filter').addEventListener('change', function() {
-                filterProfessionals();
-            });
+                // Load sample professionals
+                loadSampleProfessionals();
+            } catch (error) {
+                console.error('Error loading professionals template:', error);
+                showNotification('Failed to load professionals content.', 'error');
+            }
+        } else {
+            // Template is already loaded, just display it
+            professionalsContent.style.display = 'block';
         }
         
-        // Show professionals content
-        professionalsContent.style.display = 'block';
+        // Load the professionals CSS if it's not already loaded
+        if (!document.querySelector('link[href="css/professionals.css"]')) {
+            const linkElem = document.createElement('link');
+            linkElem.rel = 'stylesheet';
+            linkElem.href = 'css/professionals.css';
+            document.head.appendChild(linkElem);
+        }
     } else {
         // Fallback - redirect if necessary
         window.location.href = "professional.html";
@@ -733,16 +437,12 @@ function confirmBooking(profId) {
     hideAppointmentModal();
 }
 
-
-
-
 // Export the functions for use in script.js
 window.showProfessionals = showProfessionals;
 window.hideAppointmentModal = hideAppointmentModal;
 window.selectSessionType = selectSessionType;
 window.selectTimeSlot = selectTimeSlot;
 window.confirmBooking = confirmBooking;
-window.showNotification = showNotification;
 window.updateTimeSlots = updateTimeSlots;
 window.filterProfessionals = filterProfessionals;
-window.loadSampleProfessionals = loadSampleProfessionals;
+window.showAppointmentModal = showAppointmentModal;

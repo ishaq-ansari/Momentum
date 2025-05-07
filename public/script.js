@@ -1,38 +1,53 @@
 //public/script.js
 
+
+// import { Talk } from "talkjs";
+
+// await Talk.ready;
+
+// const me = new Talk.User("sample_user_alice");
+// const session = new Talk.Session({ appId: "tiCAkQV1", me });
+
+// const chatbox = session.createChatbox();
+// chatbox.select("sample_conversation");
+// chatbox.mount(document.getElementById("talkjs-container"));
+
+
 // Global Variables
-const API_URL = window.location.origin + '/api';
+const API_URL = "https://cstem.us/team_two/api";
+// const LOCAL = window.location.origin + '/api';
+
 let token = localStorage.getItem('token');
 
 // Function to apply home.css dynamically
 function applyHomeCSS() {
-    document.getElementById("cssLink").setAttribute("href", "home.css"); // Switch to home style
+    document.getElementById("cssLink").setAttribute("href", "home.css");
     document.getElementById("auth-container").style.display = "none";
-    document.getElementById("app-container").style.display = "flex"; // Changed to flex to work with sidebar layout
+    document.getElementById("app-container").style.display = "flex";
 }
 
 // Function to remove home.css
 function removeHomeCSS() {
-    document.getElementById("cssLink").setAttribute("href", "style.css"); // Switch back to login style
+    document.getElementById("cssLink").setAttribute("href", "style.css");
 }
 
 // Notification Functions
 function showNotification(message, type = 'info') {
     const notification = document.getElementById('notification');
     const notificationMessage = document.getElementById('notification-message');
-    
+
     // Remove any existing classes
     notification.classList.remove('success', 'error', 'info');
-    
+
     // Add the appropriate class
     notification.classList.add(type);
-    
+
     // Set the message
     notificationMessage.textContent = message;
-    
+
     // Show the notification
     notification.classList.add('show');
-    
+
     // Auto-hide after 5 seconds
     setTimeout(() => {
         closeNotification();
@@ -63,13 +78,13 @@ function showLoginForm() {
 }
 
 //calling the Function to handle login
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", async function() {
     // Setup login button handler
     const loginBtn = document.getElementById("login-btn");
     if (loginBtn) {
         loginBtn.addEventListener("click", handleLogin);
     }
-    
+
     // Add Enter key functionality for login
     const loginUsername = document.getElementById("login-username");
     const loginPassword = document.getElementById("login-password");
@@ -79,32 +94,32 @@ document.addEventListener("DOMContentLoaded", async function () {
                 loginPassword.focus();
             }
         });
-        
+
         loginPassword.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 handleLogin();
             }
         });
     }
-    
+
     // Add Enter key functionality for signup
     const signupUsername = document.getElementById("signup-username");
     const signupEmail = document.getElementById("signup-email");
     const signupPassword = document.getElementById("signup-password");
-    
+
     if (signupUsername && signupEmail && signupPassword) {
         signupUsername.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 signupEmail.focus();
             }
         });
-        
+
         signupEmail.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 signupPassword.focus();
             }
         });
-        
+
         signupPassword.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 handleRegister(event);
@@ -121,29 +136,29 @@ document.addEventListener("DOMContentLoaded", async function () {
             }
         });
     }
-    
+
     // Add click handlers for navigation that only update the main content area
     setupNavigationHandlers();
-    
+
     // Check if user is already logged in
     if (token) {
-        document.getElementById('auth-container').style.display = 'none';
-        document.getElementById('app-container').style.display = 'flex'; // Changed to flex
         applyHomeCSS();
-        showHomeFeed();
+
+        // Remove the setTimeout and immediately load the home feed and posts
+        await showHomeFeed();
     }
 });
 
 function setupNavigationHandlers() {
     // Get all navigation items
     const navItems = document.querySelectorAll('.nav-item');
-    
+
     // Add click event to each navigation item
     navItems.forEach(item => {
         item.addEventListener('click', function() {
-            // Remove active class from all items
+            // Remove active class from all items+ '/api'
             navItems.forEach(i => i.classList.remove('active'));
-            
+
             // Add active class to clicked item
             this.classList.add('active');
         });
@@ -154,7 +169,7 @@ function showResources() {
     // Hide home content
     const mainContent = document.getElementById("main-content");
     const resourcesSection = document.getElementById("resources-section");
-    
+
     // Show only resources section in main content area
     if (mainContent && resourcesSection) {
         // Hide all direct children of main-content except resources-section
@@ -163,7 +178,7 @@ function showResources() {
                 child.style.display = 'none';
             }
         });
-        
+
         // Show resources section
         resourcesSection.style.display = "block";
     }
@@ -171,44 +186,52 @@ function showResources() {
 
 // Auth Functions
 async function handleLogin() {
-    const username = document.getElementById('login-username').value;
+    const identifier = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
 
     // Simple validation
-    if (!username || !password) {
-        showNotification('Please enter both username and password', 'error');
+    if (!identifier || !password) {
+        showNotification('Please enter both username/email and password', 'error');
         return;
     }
 
     try {
+        // Determine if the input is an email or username
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+        const payload = isEmail
+            ? { email: identifier, password }
+            : { username: identifier, password };
+
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify(payload)
         });
-
         const data = await response.json();
-        
+
         if (data.token) {
             token = data.token;
             localStorage.setItem('token', token);
-            
+
             // Add null checks before accessing elements
             const authContainer = document.getElementById('auth-container');
             const appContainer = document.getElementById('app-container');
-            
+
             if (authContainer) authContainer.style.display = 'none';
             if (appContainer) appContainer.style.display = 'flex'; // Changed to flex
-            
+
             // Hide notification close button (the "x" at the top left)
             const notificationClose = document.querySelector('.notification-close');
             if (notificationClose) notificationClose.style.display = 'none';
-            
+
             applyHomeCSS(); // Apply home.css
-            showHomeFeed(); // Show the home feed after login
-            await fetchPosts();
+
+            // Make sure the home feed is displayed and posts are fetched immediately
+            await showHomeFeed(); // Use await to ensure the UI is ready
+
+            // No need to call fetchPosts() separately since showHomeFeed already calls it
         } else {
-            showNotification(data.message || 'Login failed', 'error');
+            showNotification(data.error || 'Login failed', 'error');
         }
     } catch (error) {
         showNotification('Error logging in. Please try again.', 'error');
@@ -217,30 +240,31 @@ async function handleLogin() {
 
 async function handleRegister(event) {
     event.preventDefault(); // Always prevent default form submission
-    
+
     const username = document.getElementById('signup-username').value;
     const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-password').value;
-    
+    const userType = document.getElementById("user-type").value;
+
     // Clear previous error messages
     document.getElementById('email-error').textContent = '';
     document.getElementById('password-error').textContent = '';
-    
+
     let valid = true;
-    
+
     // Validate username (non-empty)
     if (!username) {
         document.getElementById('username-error').textContent = 'Username is required.';
         valid = false;
     }
-    
+
     // Validate email
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     if (!email || !emailPattern.test(email)) {
         document.getElementById('email-error').textContent = 'Please enter a valid email address.';
         valid = false;
     }
-    
+
     // Validate password
     if (!password) {
         document.getElementById('password-error').textContent = 'Password is required.';
@@ -249,7 +273,7 @@ async function handleRegister(event) {
         document.getElementById('password-error').textContent = 'Password must be at least 8 characters long.';
         valid = false;
     }
-    
+
     if (!valid) {
         return; // Stop here if validation fails
     }
@@ -258,11 +282,11 @@ async function handleRegister(event) {
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password })
+            body: JSON.stringify({ username, email, password, userType })
         });
 
         const data = await response.json();
-        
+
         if (response.ok) {
             showNotification('Registration successful! Please login.', 'success');
             switchForm(); // Switch to login form
@@ -276,12 +300,12 @@ async function handleRegister(event) {
 
 async function handlePasswordReset(event) {
     event.preventDefault(); // Prevent default form submission
-    
+
     const email = document.getElementById('forgot-email').value;
-    
+
     // Clear previous error messages
     document.getElementById('forgot-email-error').textContent = '';
-    
+
     // Validate email
     const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     if (!email || !emailPattern.test(email)) {
@@ -317,7 +341,7 @@ function handleLogout() {
 async function showHomeFeed() {
     // Get main content area
     const mainContent = document.getElementById('main-content');
-    
+
     // Reset main content to show home feed
     if (mainContent) {
         // First hide all sections
@@ -325,31 +349,47 @@ async function showHomeFeed() {
         sections.forEach(section => {
             section.style.display = 'none';
         });
-        
+
         // Show the home feed components
         const postsContainer = document.getElementById('posts-container');
         const createPost = document.querySelector('.create-post');
         const searchContainer = document.querySelector('.search-container');
-        
-        if (postsContainer) postsContainer.style.display = 'flex';
+
+        if (postsContainer) {
+            postsContainer.style.display = 'flex';
+            postsContainer.innerHTML = '<div class="loading-posts">Loading posts...</div>';
+        }
         if (createPost) createPost.style.display = 'flex';
         if (searchContainer) searchContainer.style.display = 'block';
+
+        // Make the home nav item active
+        const homeNavItem = document.querySelector('.nav-item:first-child');
+        if (homeNavItem) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            homeNavItem.classList.add('active');
+        }
     }
-    
-    await fetchPosts();
+
+    // Fetch and display posts
+    try {
+        await fetchPosts();
+    } catch (error) {
+        console.error('Error fetching posts in showHomeFeed:', error);
+    }
 }
 
 // Rest of show functions remain the same
 async function showChatRooms() {
     // Instead of redirecting, load chat room content into the main content area
     const mainContentArea = document.getElementById('main-content');
-    
+
     if (mainContentArea) {
         // First hide all content
         Array.from(mainContentArea.children).forEach(child => {
             child.style.display = 'none';
         });
-        
+
         // Check if chat room content exists, if not create it
         let chatRoomContent = document.getElementById('chat-rooms-section');
         if (!chatRoomContent) {
@@ -368,10 +408,10 @@ async function showChatRooms() {
             `;
             mainContentArea.appendChild(chatRoomContent);
         }
-        
+
         // Show chat room content
         chatRoomContent.style.display = 'block';
-        
+
         // Fetch and display chat rooms
         await fetchChatRooms();
     } else {
@@ -407,7 +447,13 @@ if (resourcesBtn) {
 // Add event listeners for chat system
 const chatBtn = document.getElementById('chat-btn');
 if (chatBtn) {
-    chatBtn.addEventListener('click', showChatSystem);
+    chatBtn.addEventListener('click', showCustomChatSystem);
+}
+
+// Add event listener for profile button
+const profileBtn = document.getElementById('profile-btn');
+if (profileBtn) {
+    profileBtn.addEventListener('click', showProfile);
 }
 
 // Post and content functions with notification support
@@ -439,18 +485,39 @@ async function createPost() {
 
 async function fetchPosts() {
     try {
+        console.log('Fetching posts with token:', token);
         const response = await fetch(`${API_URL}/posts`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
         });
+        console.log('Posts response status:', response.status);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('Error response data:', errorData);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const posts = await response.json();
+        console.log('Posts fetched successfully:', posts);
         renderPosts(posts);
     } catch (error) {
+        console.error('Error fetching posts:', error);
         showNotification('Error fetching posts. Please try again.', 'error');
+
+        // Show error message in posts container
+        const postsContainer = document.getElementById('posts-container');
+        if (postsContainer) {
+            postsContainer.innerHTML = '<div class="error-message">Could not load posts. Please try refreshing the page.</div>';
+        }
     }
 }
 
 // Rest of the functions remain similar but with notification support instead of alerts
-
 function renderPosts(posts) {
     const postsContainer = document.getElementById('posts-container');
     postsContainer.innerHTML = '';
@@ -463,10 +530,14 @@ function renderPosts(posts) {
     posts.forEach(post => {
         const postElement = document.createElement('div');
         postElement.className = 'post';
+
+        // Check if post is anonymous, otherwise show the username from populated userId
+        const authorText = post.anonymous ?
+            'Anonymous' :
+            `Posted by ${post.userId?.username || 'User'}`;
+
         postElement.innerHTML = `
-            <div class="post-author">
-                ${post.anonymous ? 'Anonymous' : 'Posted by'} ${post.anonymous ? '' : 'User'}
-            </div>
+            <div class="post-author">${authorText}</div>
             <div class="post-content">${post.text}</div>
         `;
         postsContainer.appendChild(postElement);
@@ -481,7 +552,7 @@ function searchPosts() {
     posts.forEach(post => {
         let postText = post.textContent.toLowerCase();
         let author = post.querySelector(".post-author")?.textContent.toLowerCase() || "";
-        
+
         if (postText.includes(query) || author.includes(query)) {
             post.style.display = "block";
             found = true;
@@ -503,6 +574,7 @@ function searchPosts() {
         noResultsMessage.remove();
     }
 }
+
 
 // Continue with other functions in the same way, replacing alerts with the notification system
 

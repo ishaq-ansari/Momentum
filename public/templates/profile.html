@@ -1,0 +1,106 @@
+<div id="profile-section" class="profile-section">
+    <h2>Your Profile</h2>
+    
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar-container">
+                <div class="profile-avatar" id="profile-avatar"></div>
+                <button id="update-avatar-btn" class="btn-secondary">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                    </svg>
+                    Change
+                </button>
+            </div>
+            <div class="profile-info">
+                <h3 id="profile-name"></h3>
+                <p class="member-since">Member since <span id="member-since-date"></span></p>
+            </div>
+        </div>
+
+        <div class="profile-tabs">
+            <button class="profile-tab active" data-tab="personal-info">Personal Info</button>
+            <button class="profile-tab" data-tab="security">Security</button>
+            <button class="profile-tab" data-tab="preferences">Preferences</button>
+        </div>
+
+        <!-- Personal Info Tab Content -->
+        <div class="profile-tab-content active" id="personal-info-tab">
+            <form id="personal-info-form">
+                <div class="form-group">
+                    <label for="profile-username">Username</label>
+                    <input type="text" id="profile-username" placeholder="Username">
+                </div>
+                <div class="form-group">
+                    <label for="profile-email">Email</label>
+                    <input type="email" id="profile-email" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <label for="profile-bio">Bio</label>
+                    <textarea id="profile-bio" placeholder="Tell us about yourself..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label for="profile-location">Location</label>
+                        <input type="text" id="profile-location" placeholder="City, Country">
+                    </div>
+                    <div class="form-group half-width">
+                        <label for="profile-occupation">Occupation</label>
+                        <input type="text" id="profile-occupation" placeholder="Your occupation">
+                    </div>
+                </div>
+                <button type="submit" class="primary-btn">Update Profile</button>
+            </form>
+        </div>
+
+        <!-- Security Tab Content -->
+        <div class="profile-tab-content" id="security-tab">
+            <form id="security-form">
+                <div class="form-group">
+                    <label for="current-password">Current Password</label>
+                    <input type="password" id="current-password" placeholder="Enter your current password">
+                </div>
+                <div class="form-group">
+                    <label for="new-password">New Password</label>
+                    <input type="password" id="new-password" placeholder="Enter your new password">
+                    <div class="password-requirements">
+                        Password must be at least 8 characters long, include a number, and a special character.
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm New Password</label>
+                    <input type="password" id="confirm-password" placeholder="Confirm your new password">
+                </div>
+                <button type="submit" class="primary-btn">Update Password</button>
+            </form>
+        </div>
+
+        <!-- Preferences Tab Content -->
+        <div class="profile-tab-content" id="preferences-tab">
+            <form id="preferences-form">
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="email-notifications">
+                        <span>Receive email notifications</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="dark-mode">
+                        <span>Enable dark mode</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="notification-frequency">Notification Frequency</label>
+                    <select id="notification-frequency">
+                        <option value="immediate">Immediate</option>
+                        <option value="daily">Daily Digest</option>
+                        <option value="weekly">Weekly Digest</option>
+                        <option value="none">None</option>
+                    </select>
+                </div>
+                <button type="submit" class="primary-btn">Save Preferences</button>
+            </form>
+        </div>
+    </div>
+</div>

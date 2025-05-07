@@ -4,12 +4,39 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const Post = require('../models/Post');
+const User = require('../models/User');
 
 // Get all posts
 router.get('/', auth, async (req, res) => {
     try {
-        const posts = await Post.find({}).sort({ createdAt: -1 });
+        const posts = await Post.find({})
+            .populate('userId', 'username') // Populate user info to get the username
+            .sort({ createdAt: -1 });
         res.json(posts);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Get all peer support users
+router.get('/users', auth, async (req, res) => {
+    try {
+        const users = await Post.find({});
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
+// Get all peer support users
+router.get('/peer-support', auth, async (req, res) => {
+    try {
+        const peers = await Post.find({
+            userType: "Peer"
+        });
+
+        res.json(peers);
     } catch (err) {
         res.status(500).json({ message: 'Server error' });
     }

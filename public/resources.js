@@ -4,720 +4,75 @@
 async function showResources() {
     // Load resources content into the main content area
     const mainContentArea = document.getElementById('main-content');
-    
+
     if (mainContentArea) {
         // First hide all content
         Array.from(mainContentArea.children).forEach(child => {
             child.style.display = 'none';
         });
-        
-        // Check if resources content exists, if not create it
+
+        // Check if resources content exists, if not load it from template
         let resourcesContent = document.getElementById('resources-section');
         if (!resourcesContent) {
-            resourcesContent = document.createElement('div');
-            resourcesContent.id = 'resources-section';
-            resourcesContent.innerHTML = `
-                <div class="section-header">
-                    <h2>Mental Health Resources</h2>
-                    <p>Find professional support and services near you.</p>
-                </div>
-                
-                <div class="resource-search-container">
-                    <div class="search-box">
-                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                        <input type="text" placeholder="Search by keyword..." class="search-input" id="resource-search-input">
-                    </div>
-                    
-                    <div class="filter-options">
-                        <select id="country-filter" class="filter-select">
-                            <option value="">Select Country</option>
-                            <option value="us">United States</option>
-                            <option value="ca">Canada</option>
-                            <option value="uk">United Kingdom</option>
-                            <option value="au">Australia</option>
-                            <!-- More countries can be added -->
-                        </select>
-                        
-                        <select id="state-filter" class="filter-select" disabled>
-                            <option value="">Select State/Province</option>
-                            <!-- States will be populated based on country selection -->
-                        </select>
-                        
-                        <select id="resource-type-filter" class="filter-select">
-                            <option value="">All Resource Types</option>
-                            <option value="crisis">Crisis Support</option>
-                            <option value="therapy">Therapy Services</option>
-                            <option value="support-group">Support Groups</option>
-                            <option value="inpatient">Inpatient Care</option>
-                            <option value="community">Community Services</option>
-                        </select>
-                    </div>
-                    
-                    <div class="location-finder">
-                        <button id="use-my-location" class="secondary-btn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <circle cx="12" cy="12" r="3"></circle>
-                            </svg>
-                            Use My Location
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="resources-results-container">
-                    <div class="results-header">
-                        <h3>Nearest Resources</h3>
-                        <div class="results-count">Loading resources...</div>
-                    </div>
-                    
-                    <div class="resources-grid" id="resources-container">
-                        <!-- Resource cards will be loaded here -->
-                        <div class="loading-spinner">
-                            <div class="spinner"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="resource-map-container">
-                    <h3>Resources Map</h3>
-                    <div id="resources-map" class="map-container">
-                        <!-- Map will be loaded here -->
-                        <div class="map-placeholder">
-                            Map loading...
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="section-divider"></div>
-                
-                <div class="emergency-resources">
-                    <div class="emergency-card">
-                        <h3>Need Immediate Help?</h3>
-                        <p>If you or someone you know is in crisis, please use these emergency resources:</p>
-                        <div class="emergency-contacts">
-                            <div class="emergency-contact-item">
-                                <strong>National Suicide Prevention Lifeline:</strong> 
-                                <a href="tel:988">988</a> or <a href="tel:1-800-273-8255">1-800-273-8255</a>
-                            </div>
-                            <div class="emergency-contact-item">
-                                <strong>Crisis Text Line:</strong> 
-                                Text HOME to <a href="sms:741741">741741</a>
-                            </div>
-                            <div class="emergency-contact-item">
-                                <strong>Emergency Services:</strong> 
-                                <a href="tel:911">911</a> (US) or local emergency number
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="section-divider"></div>
-                
-                <div class="resource-submission">
-                    <div class="submission-card">
-                        <h3>Know a Resource?</h3>
-                        <p>Help us build our directory by submitting mental health resources in your area.</p>
-                        <button class="primary-btn" onclick="showResourceSubmissionForm()">Submit a Resource</button>
-                    </div>
-                </div>
-                
-                <div id="resource-submission-form" class="modal" style="display: none;">
-                    <div class="modal-content">
-                        <span class="close-btn" onclick="hideResourceSubmissionForm()">&times;</span>
-                        <h3>Submit a Mental Health Resource</h3>
-                        <form id="resource-submission-form-element">
-                            <div class="form-group">
-                                <label for="resource-name">Resource Name*</label>
-                                <input type="text" id="resource-name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="resource-type">Resource Type*</label>
-                                <select id="resource-type" required>
-                                    <option value="">Select Type</option>
-                                    <option value="crisis">Crisis Support</option>
-                                    <option value="therapy">Therapy Services</option>
-                                    <option value="support-group">Support Groups</option>
-                                    <option value="inpatient">Inpatient Care</option>
-                                    <option value="community">Community Services</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="resource-description">Description*</label>
-                                <textarea id="resource-description" rows="3" required placeholder="Briefly describe the services offered..."></textarea>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group half-width">
-                                    <label for="resource-country">Country*</label>
-                                    <select id="resource-country" required>
-                                        <option value="">Select Country</option>
-                                        <option value="us">United States</option>
-                                        <option value="ca">Canada</option>
-                                        <option value="uk">United Kingdom</option>
-                                        <option value="au">Australia</option>
-                                    </select>
-                                </div>
-                                <div class="form-group half-width">
-                                    <label for="resource-state">State/Province*</label>
-                                    <select id="resource-state" required disabled>
-                                        <option value="">Select State/Province</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="resource-address">Address*</label>
-                                <input type="text" id="resource-address" required>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group half-width">
-                                    <label for="resource-phone">Phone Number</label>
-                                    <input type="tel" id="resource-phone">
-                                </div>
-                                <div class="form-group half-width">
-                                    <label for="resource-website">Website</label>
-                                    <input type="url" id="resource-website" placeholder="https://">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="submitter-email">Your Email*</label>
-                                <input type="email" id="submitter-email" required>
-                                <small>We may contact you to verify this information.</small>
-                            </div>
-                            <button type="submit" class="primary-btn">Submit Resource</button>
-                        </form>
-                    </div>
-                </div>
-            `;
-            mainContentArea.appendChild(resourcesContent);
-            
-            // Add styles for the resources section
-            addResourcesStyles();
-            
-            // Add event listeners for the resources functionality
-            document.getElementById('country-filter').addEventListener('change', function(e) {
-                populateStatesDropdown(e.target.value);
-            });
-            
-            document.getElementById('resource-country').addEventListener('change', function(e) {
-                populateSubmissionStatesDropdown(e.target.value);
-            });
-            
-            document.getElementById('resource-search-input').addEventListener('input', filterResources);
-            document.getElementById('state-filter').addEventListener('change', filterResources);
-            document.getElementById('resource-type-filter').addEventListener('change', filterResources);
-            
-            document.getElementById('use-my-location').addEventListener('click', getUserLocation);
-            
-            document.getElementById('resource-submission-form-element').addEventListener('submit', function(e) {
-                e.preventDefault();
-                submitResourceForm();
-            });
-            
-            // Initialize the resources map
-            initializeResourcesMap();
-            
-            // Load sample resources data (in a real app, this would fetch from an API)
-            loadResourcesData();
+            // Load the template HTML
+            try {
+                const response = await fetch('templates/resources.html');
+                const templateHTML = await response.text();
+
+                // Create a container and insert the template HTML
+                const tempContainer = document.createElement('div');
+                tempContainer.innerHTML = templateHTML;
+
+                // Append the template content to main content area
+                while (tempContainer.firstChild) {
+                    mainContentArea.appendChild(tempContainer.firstChild);
+                }
+
+                // Add event listeners for the resources functionality
+                document.getElementById('country-filter').addEventListener('change', function(e) {
+                    populateStatesDropdown(e.target.value);
+                });
+
+                document.getElementById('resource-country').addEventListener('change', function(e) {
+                    populateSubmissionStatesDropdown(e.target.value);
+                });
+
+                document.getElementById('resource-search-input').addEventListener('input', filterResources);
+                document.getElementById('state-filter').addEventListener('change', filterResources);
+                document.getElementById('resource-type-filter').addEventListener('change', filterResources);
+
+                document.getElementById('use-my-location').addEventListener('click', getUserLocation);
+
+                document.getElementById('resource-submission-form-element').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    submitResourceForm();
+                });
+
+                // Initialize the resources map
+                initializeResourcesMap();
+
+                // Load sample resources data (in a real app, this would fetch from an API)
+                loadResourcesData();
+            } catch (error) {
+                console.error('Error loading resources template:', error);
+                showNotification('Failed to load resources content.', 'error');
+            }
+        } else {
+            // Template is already loaded, just display it
+            resourcesContent.style.display = 'block';
         }
-        
-        // Show resources content
-        resourcesContent.style.display = 'block';
+
+        // Load the resources CSS if it's not already loaded
+        if (!document.querySelector('link[href="css/resources.css"]')) {
+            const linkElem = document.createElement('link');
+            linkElem.rel = 'stylesheet';
+            linkElem.href = 'css/resources.css';
+            document.head.appendChild(linkElem);
+        }
     } else {
         // Fallback - redirect if necessary
         window.location.href = "resources.html";
     }
-}
-
-// Function to add resources styles
-function addResourcesStyles() {
-    // Check if styles already exist
-    if (document.getElementById('resources-styles')) return;
-    
-    const styleSheet = document.createElement("style");
-    styleSheet.id = 'resources-styles';
-    styleSheet.textContent = `
-        .section-header {
-            margin-bottom: 2rem;
-        }
-        
-        .section-header h2 {
-            color: #1a1a1a;
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .section-header p {
-            color: #666;
-            font-size: 1rem;
-        }
-        
-        .resource-search-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            align-items: center;
-            background-color: #f8f5ff;
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-        }
-        
-        .search-box {
-            position: relative;
-            flex: 1;
-            min-width: 250px;
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
-            color: #8a4fff;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 0.75rem 0.75rem 0.75rem 2.5rem;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            outline: none;
-            font-size: 0.9rem;
-        }
-        
-        .search-input:focus {
-            border-color: #8a4fff;
-        }
-        
-        .filter-options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            flex: 2;
-            min-width: 300px;
-        }
-        
-        .filter-select {
-            padding: 0.75rem;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            outline: none;
-            flex: 1;
-            min-width: 120px;
-            font-size: 0.9rem;
-        }
-        
-        .filter-select:focus {
-            border-color: #8a4fff;
-        }
-        
-        .filter-select:disabled {
-            background-color: #f5f5f5;
-            cursor: not-allowed;
-        }
-        
-        .location-finder {
-            display: flex;
-            align-items: center;
-        }
-        
-        .secondary-btn {
-            background-color: #e6deff;
-            color: #8a4fff;
-            border: none;
-            border-radius: 8px;
-            padding: 0.75rem 1rem;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .secondary-btn:hover {
-            background-color: #d9caff;
-        }
-        
-        .resources-results-container {
-            margin-bottom: 2rem;
-        }
-        
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .results-header h3 {
-            font-size: 1.3rem;
-            color: #333;
-        }
-        
-        .results-count {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        
-        .resources-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            position: relative;
-            min-height: 200px;
-        }
-        
-        .resource-card {
-            background-color: white;
-            border-radius: 0.5rem;
-            border: 1px solid rgb(229, 231, 235);
-            padding: 1.5rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .resource-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-        
-        .resource-type-tag {
-            display: inline-block;
-            padding: 0.3rem 0.6rem;
-            background-color: #f0f0f0;
-            color: #666;
-            border-radius: 1rem;
-            font-size: 0.8rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .crisis-tag { background-color: #ffecef; color: #d32f2f; }
-        .therapy-tag { background-color: #e8f4fd; color: #1976d2; }
-        .support-group-tag { background-color: #e8f5e9; color: #388e3c; }
-        .inpatient-tag { background-color: #fff3e0; color: #f57c00; }
-        .community-tag { background-color: #f3e5f5; color: #7b1fa2; }
-        
-        .resource-name {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .resource-description {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 1rem;
-            flex-grow: 1;
-        }
-        
-        .resource-address {
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-        
-        .resource-address svg, 
-        .resource-phone svg,
-        .resource-website svg {
-            flex-shrink: 0;
-            margin-top: 0.2rem;
-        }
-        
-        .resource-phone, .resource-website {
-            font-size: 0.85rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-        
-        .resource-phone a, .resource-website a {
-            color: #8a4fff;
-            text-decoration: none;
-        }
-        
-        .resource-phone a:hover, .resource-website a:hover {
-            text-decoration: underline;
-        }
-        
-        .resource-distance {
-            font-size: 0.8rem;
-            color: #8a4fff;
-            margin-bottom: 1rem;
-        }
-        
-        .resource-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-        
-        .view-on-map-btn {
-            background-color: #e6deff;
-            color: #8a4fff;
-            border: none;
-            flex: 1;
-            border-radius: 0.25rem;
-            padding: 0.5rem;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .view-on-map-btn:hover {
-            background-color: #d9caff;
-        }
-        
-        .get-directions-btn {
-            background-color: #8a4fff;
-            color: white;
-            border: none;
-            flex: 1;
-            border-radius: 0.25rem;
-            padding: 0.5rem;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .get-directions-btn:hover {
-            background-color: #7b45e0;
-        }
-        
-        .loading-spinner {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(138, 79, 255, 0.2);
-            border-radius: 50%;
-            border-top-color: #8a4fff;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .resource-map-container {
-            margin-bottom: 2rem;
-        }
-        
-        .resource-map-container h3 {
-            font-size: 1.3rem;
-            color: #333;
-            margin-bottom: 1rem;
-        }
-        
-        .map-container {
-            height: 400px;
-            background-color: #f0f0f0;
-            border-radius: 0.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .map-placeholder {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #666;
-            font-size: 1.2rem;
-        }
-        
-        .section-divider {
-            height: 1px;
-            background-color: #e0e0e0;
-            margin: 2rem 0;
-        }
-        
-        .emergency-resources {
-            margin-bottom: 2rem;
-        }
-        
-        .emergency-card {
-            background-color: #fff5f5;
-            border: 1px solid #ffcccc;
-            border-left: 4px solid #d32f2f;
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-        }
-        
-        .emergency-card h3 {
-            color: #d32f2f;
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .emergency-contacts {
-            margin-top: 1rem;
-        }
-        
-        .emergency-contact-item {
-            margin-bottom: 0.75rem;
-            font-size: 0.95rem;
-        }
-        
-        .emergency-contact-item a {
-            color: #d32f2f;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .emergency-contact-item a:hover {
-            text-decoration: underline;
-        }
-        
-        .submission-card {
-            background-color: #f5f0ff;
-            border: 1px solid #e6d8ff;
-            border-radius: 0.5rem;
-            padding: 2rem;
-            text-align: center;
-        }
-        
-        .submission-card h3 {
-            color: #8a4fff;
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .primary-btn {
-            background-color: #8a4fff;
-            color: white;
-            border: none;
-            border-radius: 0.25rem;
-            padding: 0.75rem 1.5rem;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .primary-btn:hover {
-            background-color: #7b45e0;
-        }
-        
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background-color: white;
-            border-radius: 0.5rem;
-            padding: 2rem;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        
-        .close-btn {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 1.5rem;
-            color: #666;
-            cursor: pointer;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-row {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 0;
-        }
-        
-        .half-width {
-            flex: 1;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        
-        .form-group input, 
-        .form-group textarea, 
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #e0e0e0;
-            border-radius: 0.25rem;
-            font-size: 0.9rem;
-        }
-        
-        .form-group input:focus, 
-        .form-group textarea:focus, 
-        .form-group select:focus {
-            border-color: #8a4fff;
-            outline: none;
-        }
-        
-        .form-group small {
-            display: block;
-            margin-top: 0.25rem;
-            color: #666;
-            font-size: 0.8rem;
-        }
-        
-        /* No results message */
-        .no-results {
-            grid-column: 1 / -1;
-            padding: 2rem;
-            text-align: center;
-            background-color: #f5f5f5;
-            border-radius: 0.5rem;
-            color: #666;
-        }
-        
-        /* Responsive styles */
-        @media (max-width: 768px) {
-            .resource-search-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .filter-options {
-                flex-direction: column;
-            }
-            
-            .form-row {
-                flex-direction: column;
-                gap: 1.5rem;
-            }
-        }
-    `;
-    document.head.appendChild(styleSheet);
 }
 
 // Function to populate states dropdown based on country selection
@@ -725,11 +80,11 @@ function populateStatesDropdown(country) {
     const statesDropdown = document.getElementById('state-filter');
     statesDropdown.innerHTML = '<option value="">Select State/Province</option>';
     statesDropdown.disabled = true;
-    
+
     if (country) {
         // Get states based on country
         const states = getStatesByCountry(country);
-        
+
         if (states && states.length > 0) {
             states.forEach(state => {
                 const option = document.createElement('option');
@@ -740,7 +95,7 @@ function populateStatesDropdown(country) {
             statesDropdown.disabled = false;
         }
     }
-    
+
     // Trigger resource filtering
     filterResources();
 }
@@ -750,11 +105,11 @@ function populateSubmissionStatesDropdown(country) {
     const statesDropdown = document.getElementById('resource-state');
     statesDropdown.innerHTML = '<option value="">Select State/Province</option>';
     statesDropdown.disabled = true;
-    
+
     if (country) {
         // Get states based on country
         const states = getStatesByCountry(country);
-        
+
         if (states && states.length > 0) {
             states.forEach(state => {
                 const option = document.createElement('option');
@@ -801,7 +156,7 @@ function getStatesByCountry(country) {
             // Add more Australian states...
         ]
     };
-    
+
     return statesByCountry[country] || [];
 }
 
@@ -810,7 +165,7 @@ function initializeResourcesMap() {
     // In a real application, this would initialize a map service like Google Maps or Leaflet
     // For now, we'll just display a placeholder
     console.log('Map would be initialized here with API integration');
-    
+
     // Simulate map loading delay
     setTimeout(() => {
         const mapContainer = document.getElementById('resources-map');
@@ -833,7 +188,7 @@ function getUserLocation() {
         <div class="spinner" style="width: 16px; height: 16px;"></div>
         Getting location...
     `;
-    
+
     // In a real application, this would use the browser's Geolocation API
     // For demo purposes, we'll simulate a location fetch
     setTimeout(() => {
@@ -843,7 +198,7 @@ function getUserLocation() {
             longitude: -122.4194,
             address: 'San Francisco, CA'
         };
-        
+
         // Update the UI to show we're using the location
         locationButton.disabled = false;
         locationButton.innerHTML = `
@@ -853,11 +208,11 @@ function getUserLocation() {
             </svg>
             Using: ${userLocation.address}
         `;
-        
+
         // In a real app, you would update the map to center on this location
         // and sort resources by proximity to this location
         loadResourcesByLocation(userLocation);
-        
+
         // Show a notification
         showNotification('Using your current location to find nearby resources.', 'success');
     }, 1500);
@@ -869,7 +224,7 @@ function loadResourcesData() {
     // For now, let's simulate an API call with sample data
     const resourcesContainer = document.getElementById('resources-container');
     const resultsCount = document.querySelector('.results-count');
-    
+
     if (resourcesContainer) {
         // Show loading spinner
         resourcesContainer.innerHTML = `
@@ -878,18 +233,18 @@ function loadResourcesData() {
             </div>
         `;
         resultsCount.textContent = 'Loading resources...';
-        
+
         // Simulate API delay
         setTimeout(() => {
             // Get sample data
             const resources = getSampleResources();
-            
+
             // Update results count
             resultsCount.textContent = `${resources.length} resources found`;
-            
+
             // Display the resources
             displayResources(resources);
-            
+
             // Initialize the map with these locations
             // In a real app, you would pass these locations to your map API
         }, 1500);
@@ -897,13 +252,12 @@ function loadResourcesData() {
 }
 
 // Function to load resources by user location
-// Function to load resources by user location
 function loadResourcesByLocation(location) {
     // In a real application, this would fetch data from an API based on coordinates
     // For now, let's simulate an API call with sample data
     const resourcesContainer = document.getElementById('resources-container');
     const resultsCount = document.querySelector('.results-count');
-    
+
     if (resourcesContainer) {
         // Show loading spinner
         resourcesContainer.innerHTML = `
@@ -912,12 +266,12 @@ function loadResourcesByLocation(location) {
             </div>
         `;
         resultsCount.textContent = 'Finding resources near you...';
-        
+
         // Simulate API delay
         setTimeout(() => {
             // Get sample data
             const resources = getSampleResources();
-            
+
             // Sort resources by distance from user location
             // In a real app, this would calculate actual distances
             resources.forEach(resource => {
@@ -925,20 +279,20 @@ function loadResourcesByLocation(location) {
                 const distance = Math.random() * 20;
                 resource.distance = parseFloat(distance.toFixed(1));
             });
-            
+
             // Sort by distance
             resources.sort((a, b) => a.distance - b.distance);
-            
+
             // Update results count
             resultsCount.textContent = `${resources.length} resources found near you`;
-            
+
             // Display the resources
             displayResources(resources);
-            
+
             // Update map to center on user location
             // In a real app, you would update your map API
             updateMapWithUserLocation(location);
-            
+
             // Show a success notification
             showNotification('Resources sorted by distance from your location.', 'success');
         }, 1500);
@@ -948,7 +302,7 @@ function loadResourcesByLocation(location) {
 // Function to display resources in the container
 function displayResources(resources) {
     const resourcesContainer = document.getElementById('resources-container');
-    
+
     if (resourcesContainer) {
         if (resources.length === 0) {
             resourcesContainer.innerHTML = `
@@ -959,28 +313,28 @@ function displayResources(resources) {
             `;
             return;
         }
-        
+
         // Clear the container
         resourcesContainer.innerHTML = '';
-        
+
         // Add each resource as a card
         resources.forEach(resource => {
             const card = document.createElement('div');
             card.className = 'resource-card';
             card.dataset.id = resource.id;
-            
+
             // Determine tag class based on resource type
             const tagClass = `${resource.type}-tag`;
-            
+
             // Format type label for display
             const typeLabel = formatTypeLabel(resource.type);
-            
+
             // Create card HTML
             card.innerHTML = `
                 <div class="resource-type-tag ${tagClass}">${typeLabel}</div>
                 <h3 class="resource-name">${resource.name}</h3>
                 <p class="resource-description">${resource.description}</p>
-                
+
                 ${resource.distance ? `<div class="resource-distance">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a4fff" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
@@ -988,7 +342,7 @@ function displayResources(resources) {
                     </svg>
                     ${resource.distance} miles away
                 </div>` : ''}
-                
+
                 <div class="resource-address">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
                         <path d="M12 2 C8 2 4 5 4 10 C4 15 12 22 12 22 C12 22 20 15 20 10 C20 5 16 2 12 2 Z"></path>
@@ -996,14 +350,14 @@ function displayResources(resources) {
                     </svg>
                     <span>${resource.address}, ${resource.city}, ${resource.state} ${resource.zip}</span>
                 </div>
-                
+
                 ${resource.phone ? `<div class="resource-phone">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                     </svg>
                     <a href="tel:${resource.phone}">${formatPhoneNumber(resource.phone)}</a>
                 </div>` : ''}
-                
+
                 ${resource.website ? `<div class="resource-website">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
                         <circle cx="12" cy="12" r="10"></circle>
@@ -1012,13 +366,13 @@ function displayResources(resources) {
                     </svg>
                     <a href="${resource.website}" target="_blank" rel="noopener">Visit Website</a>
                 </div>` : ''}
-                
+
                 <div class="resource-actions">
                     <button class="view-on-map-btn" onclick="viewResourceOnMap('${resource.id}')">View on Map</button>
                     <button class="get-directions-btn" onclick="getDirectionsToResource('${resource.id}')">Get Directions</button>
                 </div>
             `;
-            
+
             resourcesContainer.appendChild(card);
         });
     }
@@ -1033,7 +387,7 @@ function formatTypeLabel(type) {
         'inpatient': 'Inpatient Care',
         'community': 'Community Services'
     };
-    
+
     return typeLabels[type] || type;
 }
 
@@ -1054,10 +408,10 @@ function filterResources() {
     const countryFilter = document.getElementById('country-filter').value;
     const stateFilter = document.getElementById('state-filter').value;
     const typeFilter = document.getElementById('resource-type-filter').value;
-    
+
     const resourcesContainer = document.getElementById('resources-container');
     const resultsCount = document.querySelector('.results-count');
-    
+
     if (resourcesContainer) {
         // Show loading spinner
         resourcesContainer.innerHTML = `
@@ -1066,37 +420,37 @@ function filterResources() {
             </div>
         `;
         resultsCount.textContent = 'Filtering resources...';
-        
+
         // Simulate API delay
         setTimeout(() => {
             // Get sample data
             let resources = getSampleResources();
-            
+
             // Apply filters
             if (countryFilter) {
                 resources = resources.filter(resource => resource.country === countryFilter);
             }
-            
+
             if (stateFilter) {
                 resources = resources.filter(resource => resource.state.toLowerCase() === stateFilter);
             }
-            
+
             if (typeFilter) {
                 resources = resources.filter(resource => resource.type === typeFilter);
             }
-            
+
             if (searchInput) {
-                resources = resources.filter(resource => 
+                resources = resources.filter(resource =>
                     resource.name.toLowerCase().includes(searchInput) ||
                     resource.description.toLowerCase().includes(searchInput) ||
                     resource.address.toLowerCase().includes(searchInput) ||
                     resource.city.toLowerCase().includes(searchInput)
                 );
             }
-            
+
             // Update results count
             resultsCount.textContent = `${resources.length} resources found`;
-            
+
             // Display the resources
             displayResources(resources);
         }, 500);
@@ -1107,7 +461,7 @@ function filterResources() {
 function updateMapWithUserLocation(location) {
     // In a real app, this would use a map API to center on the user's location
     console.log(`Map would center on lat: ${location.latitude}, lng: ${location.longitude}`);
-    
+
     // Update the map placeholder for demo purposes
     const mapContainer = document.getElementById('resources-map');
     if (mapContainer) {
@@ -1124,18 +478,18 @@ function updateMapWithUserLocation(location) {
 function viewResourceOnMap(resourceId) {
     // In a real app, this would pan and zoom the map to the resource
     console.log(`Showing resource ${resourceId} on map`);
-    
+
     // Get the resource data
     const resources = getSampleResources();
     const resource = resources.find(r => r.id === resourceId);
-    
+
     if (resource) {
         // Show a notification
         showNotification(`Showing ${resource.name} on map`, 'info');
-        
+
         // Scroll to map
         document.getElementById('resources-map').scrollIntoView({ behavior: 'smooth' });
-        
+
         // Update map placeholder for demo
         const mapContainer = document.getElementById('resources-map');
         if (mapContainer) {
@@ -1155,15 +509,15 @@ function getDirectionsToResource(resourceId) {
     // In a real app, this would open a maps application or provide directions
     const resources = getSampleResources();
     const resource = resources.find(r => r.id === resourceId);
-    
+
     if (resource) {
         // Create a maps URL (Google Maps in this example)
         const address = encodeURIComponent(`${resource.address}, ${resource.city}, ${resource.state} ${resource.zip}`);
         const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${address}`;
-        
+
         // Open in a new tab
         window.open(mapsUrl, '_blank');
-        
+
         // Show a notification
         showNotification(`Opening directions to ${resource.name}`, 'success');
     }
@@ -1174,7 +528,7 @@ function showResourceSubmissionForm() {
     const modal = document.getElementById('resource-submission-form');
     if (modal) {
         modal.style.display = 'flex';
-        
+
         // Add event listener to close when clicking outside
         modal.addEventListener('click', function(e) {
             if (e.target === modal) {
@@ -1204,7 +558,7 @@ function submitResourceForm() {
     const phone = document.getElementById('resource-phone').value;
     const website = document.getElementById('resource-website').value;
     const email = document.getElementById('submitter-email').value;
-    
+
     // In a real app, this would send the data to an API
     console.log('Submitting resource:', {
         name,
@@ -1217,13 +571,13 @@ function submitResourceForm() {
         website,
         submitterEmail: email
     });
-    
+
     // Show a success notification
     showNotification('Thank you! Your resource submission is being reviewed.', 'success');
-    
+
     // Clear the form
     document.getElementById('resource-submission-form-element').reset();
-    
+
     // Close the modal
     hideResourceSubmissionForm();
 }
@@ -1243,7 +597,7 @@ function showNotification(message, type = 'info') {
         `;
         document.body.appendChild(notificationContainer);
     }
-    
+
     // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification ${type}-notification`;
@@ -1264,7 +618,7 @@ function showNotification(message, type = 'info') {
         transform: translateX(20px);
         transition: opacity 0.3s, transform 0.3s;
     `;
-    
+
     // Add type-specific styling
     if (type === 'success') {
         notification.style.borderLeft = '4px solid #4CAF50';
@@ -1275,7 +629,7 @@ function showNotification(message, type = 'info') {
     } else {
         notification.style.borderLeft = '4px solid #2196F3';
     }
-    
+
     // Style notification content
     const content = notification.querySelector('.notification-content');
     content.style.cssText = `
@@ -1284,7 +638,7 @@ function showNotification(message, type = 'info') {
         align-items: center;
         justify-content: space-between;
     `;
-    
+
     // Style close button
     const closeBtn = notification.querySelector('.notification-close');
     closeBtn.style.cssText = `
@@ -1295,21 +649,21 @@ function showNotification(message, type = 'info') {
         font-size: 20px;
         line-height: 1;
     `;
-    
+
     // Add notification to container
     notificationContainer.appendChild(notification);
-    
+
     // Show notification with animation
     setTimeout(() => {
         notification.style.opacity = '1';
         notification.style.transform = 'translateX(0)';
     }, 10);
-    
+
     // Add event listener to close button
     closeBtn.addEventListener('click', () => {
         closeNotification(notification);
     });
-    
+
     // Auto close after 5 seconds
     setTimeout(() => {
         closeNotification(notification);
@@ -1320,7 +674,7 @@ function showNotification(message, type = 'info') {
 function closeNotification(notification) {
     notification.style.opacity = '0';
     notification.style.transform = 'translateX(20px)';
-    
+
     setTimeout(() => {
         if (notification.parentElement) {
             notification.parentElement.removeChild(notification);
@@ -1470,28 +824,9 @@ function getSampleResources() {
     ];
 }
 
-// // Add this function to the main application initialization
-// function initMentalHealthResources() {
-//     // Add event listener to resources link/button
-//     const resourcesLink = document.getElementById('resources-link');
-//     if (resourcesLink) {
-//         resourcesLink.addEventListener('click', function(e) {
-//             e.preventDefault();
-//             showResources();
-//         });
-//     }
-    
-//     // Check if we should show resources on page load (e.g., based on URL)
-//     if (window.location.hash === '#resources') {
-//         showResources();
-//     }
-// }
-
-// // Initialize when the DOM is fully loaded
-// document.addEventListener('DOMContentLoaded', initMentalHealthResources);
-
-
-
 // Export the resources function for use in script.js
-// Note: This would usually use export/import syntax, but for basic HTML script inclusion we make it globally available
 window.showResources = showResources;
+window.viewResourceOnMap = viewResourceOnMap;
+window.getDirectionsToResource = getDirectionsToResource;
+window.showResourceSubmissionForm = showResourceSubmissionForm;
+window.hideResourceSubmissionForm = hideResourceSubmissionForm;

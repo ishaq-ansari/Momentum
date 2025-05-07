@@ -314,3 +314,45 @@ textarea {
   z-index: 9999;
   overflow: hidden;
 }
+
+/* Loading posts indicator */
+.loading-posts {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  width: 100%;
+  color: #666;
+  font-size: 1rem;
+  position: relative;
+}
+
+.loading-posts:after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #8a4fff;
+  animation: spin 1s linear infinite;
+  margin-left: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error message display */
+.error-message {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  width: 100%;
+  color: #d32f2f;
+  font-size: 1rem;
+  text-align: center;
+  background-color: #ffebee;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
